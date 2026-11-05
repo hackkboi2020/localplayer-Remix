@@ -1,7 +1,6 @@
 name: Android Test APK
 
 on:
-  push:
   workflow_dispatch:
     inputs:
       version:

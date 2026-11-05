@@ -303,4 +303,10 @@
     <string name="crash_report_copy">Copia</string>
     <string name="crash_report_discard">Scarta</string>
     <string name="crash_report_copied">Report copiato negli appunti</string>
+    <string name="notification_now_playing">In riproduzione</string>
+    <string name="notification_channel_playback">Riproduzione</string>
+    <string name="notification_action_previous">Precedente</string>
+    <string name="notification_action_next">Successivo</string>
+    <string name="notification_action_pause">Pausa</string>
+    <string name="notification_action_play">Riproduci</string>
 </resources>

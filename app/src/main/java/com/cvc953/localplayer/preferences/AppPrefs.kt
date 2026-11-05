@@ -357,7 +357,7 @@ class AppPrefs(
         prefs.edit().putString("playback_title", title).apply()
     }
 
-    fun loadTitle(): String = prefs.getString("playback_title", "Reproduciendo") ?: "Reproduciendo"
+    fun loadTitle(): String = prefs.getString("playback_title", "") ?: ""
 
     fun saveArtist(artist: String) {
         prefs.edit().putString("playback_artist", artist).apply()

@@ -59,7 +59,7 @@ class PlayerWidget {
             val artwork = prefs.loadLastSongUri()?.let { loadAlbumArt(appContext, it) }
             val views = android.widget.RemoteViews(appContext.packageName, layoutId)
 
-            views.setTextViewText(R.id.widget_title, prefs.loadTitle().ifBlank { "Reproduciendo" })
+            views.setTextViewText(R.id.widget_title, prefs.loadTitle().ifBlank { appContext.getString(R.string.notification_now_playing) })
             views.setTextViewText(R.id.widget_artist, prefs.loadArtist())
             views.setImageViewResource(
                 R.id.widget_play_pause,

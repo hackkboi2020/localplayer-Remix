@@ -44,7 +44,11 @@ class MusicService : Service() {
         const val ACTION_SEEK_FORWARD = "com.cvc953.localplayer.ACTION_SEEK_FORWARD"
     }
 
-    private var title: String = "Reproduciendo"
+    private var title: String = ""
+
+    /** Title shown in the notification/media session; localized fallback when blank. */
+    private val displayTitle: String
+        get() = title.ifBlank { getString(R.string.notification_now_playing) }
     private var artist: String = ""
     private var albumArt: Bitmap? = null
     private var isPlaying: Boolean = false
@@ -75,7 +79,7 @@ class MusicService : Service() {
                     val newSongUri = newSong?.uri?.toString()
                     if (newSongUri != null && newSongUri != lastSongUri) {
                         // Cambió la canción, recarga carátula
-                        title = newSong.title.ifBlank { "Reproduciendo" }
+                        title = newSong.title
                         artist = newSong.artist
                         isPlaying = st.isPlaying
                         positionMs = st.position
@@ -92,7 +96,7 @@ class MusicService : Service() {
                          lastUpdateTimeMs = System.currentTimeMillis()
                     } else if (newSong != null) {
                         // Misma canción, solo actualiza estado
-                        title = newSong.title.ifBlank { "Reproduciendo" }
+                        title = newSong.title
                         artist = newSong.artist
                         val playStateChanged = isPlaying != st.isPlaying
                         isPlaying = st.isPlaying
@@ -229,7 +233,7 @@ class MusicService : Service() {
             val isSameSong = (songUri == currentSongUri)
             val isSameState = (requestedIsPlaying == isPlaying)
             if (!isSameSong || !isSameState) {
-                title = songTitle ?: "Reproduciendo"
+                title = songTitle ?: ""
                 artist = songArtist ?: ""
                 isPlaying = requestedIsPlaying
                 currentSongUri = songUri
@@ -252,7 +256,7 @@ class MusicService : Service() {
         val metadata =
             MediaMetadataCompat
                 .Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, displayTitle)
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
                 .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, albumArt)
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, durationMs)
@@ -321,7 +325,7 @@ class MusicService : Service() {
 
         return NotificationCompat
             .Builder(this, CHANNEL_ID)
-            .setContentTitle(if (title.isBlank()) "Reproduciendo" else title)
+            .setContentTitle(displayTitle)
             .setContentText(artist)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setLargeIcon(artworkBitmap)
@@ -332,12 +336,12 @@ class MusicService : Service() {
                     .MediaStyle()
                     .setMediaSession(mediaSession.sessionToken)
                     .setShowActionsInCompactView(0, 1, 2),
-            ).addAction(android.R.drawable.ic_media_previous, "Anterior", getPendingIntent(ACTION_PREV))
+            ).addAction(android.R.drawable.ic_media_previous, getString(R.string.notification_action_previous), getPendingIntent(ACTION_PREV))
             .addAction(
                 if (isPlaying) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play,
-                if (isPlaying) "Pausar" else "Reproducir",
+                getString(if (isPlaying) R.string.notification_action_pause else R.string.notification_action_play),
                 getPendingIntent(ACTION_PLAY_PAUSE),
-            ).addAction(android.R.drawable.ic_media_next, "Siguiente", getPendingIntent(ACTION_NEXT))
+            ).addAction(android.R.drawable.ic_media_next, getString(R.string.notification_action_next), getPendingIntent(ACTION_NEXT))
             .setOngoing(isPlaying)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .build()
@@ -383,7 +387,12 @@ class MusicService : Service() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
         try {
-            val channel = NotificationChannel(CHANNEL_ID, "Reproducción", NotificationManager.IMPORTANCE_LOW)
+            val channel =
+                NotificationChannel(
+                    CHANNEL_ID,
+                    getString(R.string.notification_channel_playback),
+                    NotificationManager.IMPORTANCE_LOW,
+                )
             channel.setShowBadge(false)
 
             val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager

@@ -302,4 +302,10 @@
     <string name="crash_report_copy">Copy</string>
     <string name="crash_report_discard">Discard</string>
     <string name="crash_report_copied">Report copied to the clipboard</string>
+    <string name="notification_now_playing">Now playing</string>
+    <string name="notification_channel_playback">Playback</string>
+    <string name="notification_action_previous">Previous</string>
+    <string name="notification_action_next">Next</string>
+    <string name="notification_action_pause">Pause</string>
+    <string name="notification_action_play">Play</string>
 </resources>

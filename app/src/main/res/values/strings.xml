@@ -304,4 +304,10 @@
     <string name="crash_report_copy">Copiar</string>
     <string name="crash_report_discard">Descartar</string>
     <string name="crash_report_copied">Reporte copiado al portapapeles</string>
+    <string name="notification_now_playing">Reproduciendo</string>
+    <string name="notification_channel_playback">Reproducción</string>
+    <string name="notification_action_previous">Anterior</string>
+    <string name="notification_action_next">Siguiente</string>
+    <string name="notification_action_pause">Pausar</string>
+    <string name="notification_action_play">Reproducir</string>
 </resources>
