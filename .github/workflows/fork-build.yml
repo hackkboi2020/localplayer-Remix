@@ -42,7 +42,7 @@ jobs:
             echo "$SIGNING_KEYSTORE_BASE64" | base64 -d > app/release.keystore
             echo "signed=true" >> "$GITHUB_OUTPUT"
           else
-            echo "No signing secrets found, building a debug APK instead."
+            echo "::warning::No signing secrets found. Building a debug APK with a throwaway key; it cannot be installed as an update over a previous build."
             echo "signed=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -53,11 +53,11 @@ jobs:
           ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
           ANDROID_SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
           ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
-        run: ./gradlew assembleRelease --no-daemon
+        run: ./gradlew assembleRelease --no-daemon -PappVersionName="1.1.5-fork.${{ github.run_number }}" -PappVersionCode=$((20000 + GITHUB_RUN_NUMBER))
 
       - name: Build debug APK
         if: steps.signing.outputs.signed != 'true'
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleDebug --no-daemon -PappVersionName="1.1.5-fork.${{ github.run_number }}" -PappVersionCode=$((20000 + GITHUB_RUN_NUMBER))
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

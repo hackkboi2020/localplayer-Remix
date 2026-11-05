@@ -454,8 +454,10 @@ fun PlayerScreen(
                                 )
                                 Button(
                                     onClick = {
-                                        val packageName = "com.cvc953.lyrio"
-                                        val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
+                                        // Prefer the Remix build of TimeLyr, then the original app.
+                                        val launchIntent =
+                                            listOf("com.hackkboi.timelyr", "com.cvc953.lyrio")
+                                                .firstNotNullOfOrNull { context.packageManager.getLaunchIntentForPackage(it) }
                                         if (launchIntent != null) {
                                             context.startActivity(launchIntent)
                                         } else {

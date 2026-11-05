@@ -23,7 +23,9 @@ fun deriveVersionCode(version: String): Int {
     return major * 10_000 + minor * 100 + patch
 }
 
-val appVersionCode: Int = deriveVersionCode(appVersionName)
+// CI fork builds pass -PappVersionCode so every build has a higher code and installs as an update.
+val appVersionCode: Int =
+    (findProperty("appVersionCode") as String?)?.trim()?.toIntOrNull() ?: deriveVersionCode(appVersionName)
 
 android {
     namespace = "com.cvc953.localplayer"
@@ -39,7 +41,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.cvc953.localplayer"
+        applicationId = "com.hackkboi.localplayer"
         minSdk = 24
         targetSdk = 36
         versionCode = appVersionCode

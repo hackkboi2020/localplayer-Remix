@@ -2,8 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Package visibility for Timelyr (com.cvc953.lyrio) -->
+    <!-- Package visibility for TimeLyr (the Remix build and the original) -->
     <queries>
+        <package android:name="com.hackkboi.timelyr" />
         <package android:name="com.cvc953.lyrio" />
     </queries>
 
@@ -23,8 +24,8 @@
         android:name="android.permission.ACCESS_NETWORK_STATE"
         tools:node="remove" />
 
-    <application android:allowBackup="false" android:appCategory="audio" android:dataExtractionRules="@xml/data_extraction_rules" android:fullBackupContent="@xml/backup_rules" android:icon="@mipmap/ic_launcher" android:label="@string/app_name" android:roundIcon="@mipmap/ic_launcher_round" android:supportsRtl="true" android:theme="@style/Theme.Localplayer" android:name=".LocalPlayerApp">
-        <activity android:name=".MainActivity" android:exported="true" android:label="@string/app_name" android:theme="@style/Theme.Localplayer">
+    <application android:allowBackup="false" android:appCategory="audio" android:dataExtractionRules="@xml/data_extraction_rules" android:fullBackupContent="@xml/backup_rules" android:icon="@mipmap/ic_launcher" android:label="LocalPlayer Remix" android:roundIcon="@mipmap/ic_launcher_round" android:supportsRtl="true" android:theme="@style/Theme.Localplayer" android:name=".LocalPlayerApp">
+        <activity android:name=".MainActivity" android:exported="true" android:label="LocalPlayer Remix" android:theme="@style/Theme.Localplayer">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

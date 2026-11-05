@@ -87,9 +87,9 @@ jobs:
             adb wait-for-device
             adb install -r "test-apk/LocalPlayer-${{ inputs.version || format('run-{0}', github.run_number) }}.apk" > test-apk/install.txt 2>&1
             adb logcat -c
-            adb shell am start -n com.cvc953.localplayer/.MainActivity > test-apk/launch.txt 2>&1
+            adb shell am start -n com.hackkboi.localplayer/com.cvc953.localplayer.MainActivity > test-apk/launch.txt 2>&1
             sleep 5
-            if ! adb shell pidof com.cvc953.localplayer >/dev/null; then
+            if ! adb shell pidof com.hackkboi.localplayer >/dev/null; then
               echo "::error::Release APK process exited after launch."
               printf 'FAIL\n' > test-apk/smoke-status.txt
               exit 1
