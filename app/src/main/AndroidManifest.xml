@@ -24,8 +24,8 @@
         android:name="android.permission.ACCESS_NETWORK_STATE"
         tools:node="remove" />
 
-    <application android:allowBackup="false" android:appCategory="audio" android:dataExtractionRules="@xml/data_extraction_rules" android:fullBackupContent="@xml/backup_rules" android:icon="@mipmap/ic_launcher" android:label="LocalPlayer Remix" android:roundIcon="@mipmap/ic_launcher_round" android:supportsRtl="true" android:theme="@style/Theme.Localplayer" android:name=".LocalPlayerApp">
-        <activity android:name=".MainActivity" android:exported="true" android:label="LocalPlayer Remix" android:theme="@style/Theme.Localplayer">
+    <application android:allowBackup="false" android:appCategory="audio" android:dataExtractionRules="@xml/data_extraction_rules" android:fullBackupContent="@xml/backup_rules" android:icon="@mipmap/ic_launcher" android:label="HackBeat" android:roundIcon="@mipmap/ic_launcher_round" android:supportsRtl="true" android:theme="@style/Theme.Localplayer" android:name=".LocalPlayerApp">
+        <activity android:name=".MainActivity" android:exported="true" android:label="HackBeat" android:theme="@style/Theme.Localplayer">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
