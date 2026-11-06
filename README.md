@@ -5,40 +5,36 @@
 </p>
 
 <p align="center">
-  <strong>Reproductor de música local ligero y moderno para Android</strong>
-</p>
-
-<p align="center">
-  <a href="README.en.md">English</a> · <a href="README.it.md">Italiano</a>
+  <strong>Lightweight and modern local music player for Android</strong>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Android-24%2B-brightgreen" alt="Android API"/>
   <img src="https://img.shields.io/badge/Kotlin-2.0.21-blue" alt="Kotlin"/>
-  <img src="https://img.shields.io/badge/Jetpack%20Compose-✓-blue" alt="Jetpack Compose"/>
+  <img src="https://img.shields.io/badge/Jetpack%20Compose-%E2%9C%93-blue" alt="Jetpack Compose"/>
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License"/>
 </p>
 
 ---
 
-## 📱 Características
+## 📱 Features
 
-- **🎵 Reproducción Local**: Accede a tu música sin necesidad de internet
-- **📝 Soporte para Letras**: Visualiza letras sincronizadas (formato LRC) mientras reproduces
-- **📋 Gestión de Cola**: Organiza y reordena tus próximas canciones con facilidad
-- **🔍 Búsqueda Avanzada**: Encuentra tus canciones rápidamente por título o artista
-- **🔀 Modos de Reproducción**: 
-  - Aleatorio (Shuffle)
-  - Repetir una canción
-  - Repetir todas
-- **📊 Información de Audio**: Visualiza formato (FLAC, MP3, etc.) y bitrate
-- **🔄 Detección Automática**: La app detecta automáticamente nuevas canciones agregadas
-- **🎨 Interfaz Moderna**: Diseño oscuro con Material Design 3
-- **📱 Notificaciones**: Controles de reproducción en la notificación y pantalla de bloqueo
-- **🎯 Miniplayer**: Control rápido sin salir de la biblioteca
-- **📂 Ordenamiento**: Ordena por título (A-Z, Z-A) o artista
+- **🎵 Local Playback**: Access your music without needing an internet connection
+- **📝 Lyrics Support**: View synchronized lyrics (LRC format) while playing
+- **📋 Queue Management**: Organize and reorder your upcoming songs with ease
+- **🔍 Advanced Search**: Quickly find songs by title or artist
+- **🔀 Playback Modes**:
+  - Shuffle
+  - Repeat one song
+  - Repeat all
+- **📊 Audio Info**: View format (FLAC, MP3, etc.) and bitrate
+- **🔄 Automatic Detection**: The app automatically detects newly added songs
+- **🎨 Modern Interface**: Dark Material Design 3 UI
+- **📱 Notifications**: Playback controls in the notification and lock screen
+- **🎯 Miniplayer**: Quick control without leaving the library
+- **📂 Sorting**: Sort by title (A-Z, Z-A) or artist
 
-## 📸 Capturas de Pantalla
+## 📸 Screenshots
 
 <img style="display: block; margin: auto;" src = "https://github.com/user-attachments/assets/ca1434f1-34a2-4ad3-873e-0c9f3f7e8cce"/>
 
@@ -48,73 +44,73 @@
 
 <img style="display: block; margin: auto;" src = "https://github.com/user-attachments/assets/ba193088-5c18-45cd-b050-66c54b341842"/>
 
-## 🛠️ Tecnologías
+## 🛠️ Technologies
 
-- **Lenguaje**: [Kotlin](https://kotlinlang.org/)
+- **Language**: [Kotlin](https://kotlinlang.org/)
 - **UI Framework**: [Jetpack Compose](https://developer.android.com/jetpack/compose)
-- **Diseño**: Material Design 3
-- **Arquitectura**: MVVM (Model-View-ViewModel)
+- **Design**: Material Design 3
+- **Architecture**: MVVM (Model-View-ViewModel)
 - **Audio**: Android MediaPlayer
-- **Persistencia**: SharedPreferences & JSON Cache
-- **Corrutinas**: Kotlin Coroutines para operaciones asíncronas
+- **Persistence**: SharedPreferences & JSON Cache
+- **Coroutines**: Kotlin Coroutines for asynchronous operations
 
-## 📋 Requisitos
+## 📋 Requirements
 
-- Android 7.0 (API 24) o superior
-- Permisos:
+- Android 7.0 (API 24) or higher
+- Permissions:
   - `READ_MEDIA_AUDIO` (Android 13+)
-  - `READ_EXTERNAL_STORAGE` (Android 12 o menor)
+  - `READ_EXTERNAL_STORAGE` (Android 12 or lower)
   - `FOREGROUND_SERVICE`
   - `FOREGROUND_SERVICE_MEDIA_PLAYBACK`
   - `POST_NOTIFICATIONS`
 
-## 🚀 Instalación
+## 🚀 Installation
 
-### Desde Releases
+### From Releases
 
-1. Ve a la sección [Releases](https://github.com/cvc953/localplayer/releases)
-2. Descarga el archivo APK de la última versión
-3. Instala el APK en tu dispositivo Android
-4. Abre la app y concede los permisos necesarios
+1. Go to the [Releases](https://github.com/cvc953/localplayer/releases) section
+2. Download the APK file for the latest version
+3. Install the APK on your Android device
+4. Open the app and grant the required permissions
 
-### Compilar desde el código fuente
+### Build from Source
 
 ```bash
-# Clonar el repositorio
+# Clone the repository
 git clone https://github.com/cvc953/localplayer.git
 cd localplayer
 
-# Compilar con Gradle
+# Build with Gradle
 ./gradlew assembleRelease
 
-# El APK se generará en: app/build/outputs/apk/release/
+# The APK will be generated in: app/build/outputs/apk/release/
 ```
 
-## 💡 Uso
+## 💡 Usage
 
-1. **Primera ejecución**: 
-   - Concede el permiso de acceso a archivos multimedia
-   - La app escaneará automáticamente tu biblioteca de música
+1. **First launch**:
+   - Grant the media file access permission
+   - The app will automatically scan your music library
 
-2. **Reproducir música**:
-   - Toca cualquier canción de la lista
-   - Usa el miniplayer para control rápido
-   - Toca el miniplayer para abrir el reproductor completo
+2. **Play music**:
+   - Tap any song in the list
+   - Use the miniplayer for quick controls
+   - Tap the miniplayer to open the full player
 
-3. **Gestionar cola**:
-   - Mantén presionada una canción y arrástrala para reordenar
-   - Usa el menú de tres puntos para agregar a la cola
+3. **Manage the queue**:
+   - Long-press a song and drag it to reorder
+   - Use the three-dot menu to add it to the queue
 
-4. **Ver letras**:
-   - Coloca archivos `.lrc` o `.ttml` con el mismo nombre que tu canción
-   - En el reproductor, toca el ícono de letras
-   - Las letras se sincronizarán automáticamente
+4. **View lyrics**:
+   - Place `.lrc` or `.ttml` files with the same name as your song
+   - In the player, tap the lyrics icon
+   - Lyrics will synchronize automatically
 
-5. **Actualizar biblioteca**:
-   - La app detecta automáticamente nuevas canciones
-   - También puedes actualizar manualmente desde el menú (⋮ → Actualizar biblioteca)
+5. **Update the library**:
+   - The app automatically detects new songs
+   - You can also refresh manually from the menu (⋮ → Refresh library)
 
-## 📁 Estructura del Proyecto
+## 📁 Project Structure
 
 ```
 localplayer/
@@ -122,13 +118,13 @@ localplayer/
 │   ├── src/
 │   │   ├── main/
 │   │   │   ├── java/com/cvc953/localplayer/
-│   │   │   │   ├── model/          # Modelos de datos
-│   │   │   │   ├── ui/             # Pantallas Compose
+│   │   │   │   ├── model/          # Data models
+│   │   │   │   ├── ui/             # Compose screens
 │   │   │   │   ├── viewmodel/      # ViewModels
-│   │   │   │   ├── services/       # Servicios de fondo
-│   │   │   │   ├── util/           # Utilidades
+│   │   │   │   ├── services/       # Background services
+│   │   │   │   ├── util/           # Utilities
 │   │   │   │   └── MainActivity.kt
-│   │   │   ├── res/                # Recursos
+│   │   │   ├── res/                # Resources
 │   │   │   └── AndroidManifest.xml
 │   │   └── test/
 │   └── build.gradle.kts
@@ -139,35 +135,35 @@ localplayer/
 └── build.gradle.kts
 ```
 
-## 🤝 Contribuir
+## 🤝 Contributing
 
-Las contribuciones son bienvenidas. Por favor:
+Contributions are welcome. Please:
 
-1. Haz un fork del proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+1. Fork the project
+2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 🐛 Reportar Problemas
+## 🐛 Reporting Issues
 
-Si encuentras algún bug o tienes una sugerencia, por favor abre un [issue](https://github.com/cvc953/localplayer/issues).
+If you find a bug or have a suggestion, please open an [issue](https://github.com/cvc953/localplayer/issues).
 
 ## 📝 Roadmap
 
-- [x] Ecualizador integrado
-- [x] Soporte para playlists
-- [x] Widgets para la pantalla de inicio
-- [x] Temas personalizables
-- [x] Escaneo de carpetas específicas
-- [x] Importar/Exportar configuración
+- [x] Built-in equalizer
+- [x] Playlist support
+- [x] Home screen widgets
+- [x] Customizable themes
+- [x] Specific folder scanning
+- [x] Import/Export settings
 - [x] Sleep timer
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## 👤 Autor
+## 👤 Author
 
 **Cristian Villalobos** - [@cvc953](https://github.com/cvc953)
 
