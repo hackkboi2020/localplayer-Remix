@@ -5,9 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import com.cvc953.localplayer.preferences.AppPrefs
 import java.io.File
 
@@ -57,7 +55,7 @@ object LyricsStyleStore {
                 if (!file.exists()) {
                     null
                 } else {
-                    runCatching { FontFamily(Font(file, FontWeight.Normal), Font(file, FontWeight.Bold)) }.getOrNull()
+                    runCatching { FontFamily(Typeface.createFromFile(file)) }.getOrNull()
                 }
             }
     }

@@ -148,7 +148,7 @@ object EnhancedLrcParser {
                 when {
                     nextSeg != null && nextSeg.second.isBlank() && nextSeg.first > time -> nextSeg.first
                     nextWordIdx != null -> segments[nextWordIdx].first
-                    nextLineStartMs != null && nextLineStartMs - time in 1..4000 -> nextLineStartMs
+                    nextLineStartMs != null && nextLineStartMs - time > 0L && nextLineStartMs - time <= 4000L -> nextLineStartMs
                     else -> time + 700
                 }
             val nextWordText = nextWordIdx?.let { segments[it].second }
