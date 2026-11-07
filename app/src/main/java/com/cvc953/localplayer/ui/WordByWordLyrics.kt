@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cvc953.localplayer.model.TtmlAlignment
 import com.cvc953.localplayer.model.TtmlSyllable
+import com.cvc953.localplayer.ui.theme.LyricsStyleStore
 
 @Suppress("ktlint:standard:function-naming")
 /*
@@ -131,17 +132,19 @@ private fun ProgressiveFillSyllableText(
         Text(
             text = text,
             color = baseColor,
-            fontSize = fontSizeSp.sp,
+            fontSize = (fontSizeSp * LyricsStyleStore.sizeScale).sp,
+            fontFamily = LyricsStyleStore.fontFamily,
             fontWeight = FontWeight.Bold,
-            lineHeight = lineHeightSp.sp,
+            lineHeight = (lineHeightSp * LyricsStyleStore.sizeScale).sp,
             softWrap = true,
         )
         Text(
             text = text,
             color = activeColor,
-            fontSize = fontSizeSp.sp,
+            fontSize = (fontSizeSp * LyricsStyleStore.sizeScale).sp,
+            fontFamily = LyricsStyleStore.fontFamily,
             fontWeight = FontWeight.Bold,
-            lineHeight = lineHeightSp.sp,
+            lineHeight = (lineHeightSp * LyricsStyleStore.sizeScale).sp,
             softWrap = true,
             modifier =
                 Modifier.drawWithContent {

@@ -309,4 +309,24 @@
     <string name="notification_action_next">Successivo</string>
     <string name="notification_action_pause">Pausa</string>
     <string name="notification_action_play">Riproduci</string>
+    <string name="settings_section_lyrics_title">Aspetto dei testi</string>
+    <string name="settings_section_lyrics_subtitle">Font, colore e dimensione dei testi</string>
+    <string name="lyrics_font_label">Font</string>
+    <string name="lyrics_font_default">Predefinito</string>
+    <string name="lyrics_font_sans">Sans serif</string>
+    <string name="lyrics_font_serif">Serif</string>
+    <string name="lyrics_font_mono">Monospazio</string>
+    <string name="lyrics_font_custom">Font personalizzato…</string>
+    <string name="lyrics_font_invalid">Questo file non è un font valido.</string>
+    <string name="lyrics_color_label">Colore dei testi</string>
+    <string name="lyrics_color_default">Predefinito</string>
+    <string name="lyrics_color_reset">Ripristina colore</string>
+    <string name="lyrics_size_label">Dimensione del testo</string>
+    <string name="lyrics_preview_text">Così appariranno i testi</string>
+    <string name="lyrics_reset_all">Ripristina tutto</string>
+    <string name="settings_folder_filter_label">Filtro cartelle</string>
+    <string name="settings_folder_filter_description">Mostra un pulsante cartelle in Brani per filtrare per cartella</string>
+    <string name="folder_filter_all">Tutte le cartelle</string>
+    <string name="folder_filter_title">Cartelle</string>
+    <string name="folder_filter_close">Chiudi</string>
 </resources>

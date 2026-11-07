@@ -434,4 +434,42 @@ class AppPrefs(
         } catch (_: Exception) {
         }
     }
+
+    // Lyrics appearance (defaults keep the original look)
+    fun getLyricsFontMode(): String = prefs.getString("lyrics_font_mode", "default") ?: "default"
+
+    fun setLyricsFontMode(mode: String) {
+        prefs.edit().putString("lyrics_font_mode", mode).apply()
+    }
+
+    fun getLyricsFontPath(): String? = prefs.getString("lyrics_font_path", null)
+
+    fun setLyricsFontPath(path: String?) {
+        prefs.edit().apply {
+            if (path == null) remove("lyrics_font_path") else putString("lyrics_font_path", path)
+            apply()
+        }
+    }
+
+    fun getLyricsColorHex(): String? = prefs.getString("lyrics_color_hex", null)
+
+    fun setLyricsColorHex(hex: String?) {
+        prefs.edit().apply {
+            if (hex == null) remove("lyrics_color_hex") else putString("lyrics_color_hex", hex)
+            apply()
+        }
+    }
+
+    fun getLyricsSizeScale(): Float = prefs.getFloat("lyrics_size_scale", 1f)
+
+    fun setLyricsSizeScale(scale: Float) {
+        prefs.edit().putFloat("lyrics_size_scale", scale).apply()
+    }
+
+    // Folder filter on the Songs tab
+    fun isFolderFilterEnabled(): Boolean = prefs.getBoolean("folder_filter_enabled", false)
+
+    fun setFolderFilterEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean("folder_filter_enabled", enabled).apply()
+    }
 }

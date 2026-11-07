@@ -33,6 +33,7 @@ import com.cvc953.localplayer.ui.LyricLine
 import com.cvc953.localplayer.util.LrcLine
 import com.cvc953.localplayer.util.darken
 import kotlin.math.abs
+import com.cvc953.localplayer.ui.theme.LyricsStyleStore
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -49,14 +50,15 @@ fun LyricsView(
         useDynamicBackground &&
             MaterialTheme.colorScheme.background.luminance() > 0.5f
     val activeLyricColor =
-        if (forceLightForeground) Color.Companion.White else MaterialTheme.colorScheme.onBackground
+        LyricsStyleStore.activeColor
+            ?: if (forceLightForeground) Color.Companion.White else MaterialTheme.colorScheme.onBackground
 	/*val inactiveLyricColor =
 		if (forceLightForeground) {
 			Color.White.copy(alpha = 0.52f)
 		} else {
 			LocalExtendedColors.current.textSecondary
 		}*/
-    val inactiveLyricColor = Color.Companion.White.copy(alpha = 0.4f)
+    val inactiveLyricColor = LyricsStyleStore.activeColor?.copy(alpha = 0.4f) ?: Color.Companion.White.copy(alpha = 0.4f)
 
     val timedLyrics = lyrics.filter { !it.isMetadata }
     val metadataPairs = remember(lyrics) {

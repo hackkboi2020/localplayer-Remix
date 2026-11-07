@@ -310,4 +310,24 @@
     <string name="notification_action_next">Siguiente</string>
     <string name="notification_action_pause">Pausar</string>
     <string name="notification_action_play">Reproducir</string>
+    <string name="settings_section_lyrics_title">Apariencia de la letra</string>
+    <string name="settings_section_lyrics_subtitle">Fuente, color y tamaño de la letra</string>
+    <string name="lyrics_font_label">Fuente</string>
+    <string name="lyrics_font_default">Predeterminada</string>
+    <string name="lyrics_font_sans">Sans serif</string>
+    <string name="lyrics_font_serif">Serif</string>
+    <string name="lyrics_font_mono">Monoespaciada</string>
+    <string name="lyrics_font_custom">Fuente personalizada…</string>
+    <string name="lyrics_font_invalid">Ese archivo no es una fuente válida.</string>
+    <string name="lyrics_color_label">Color de la letra</string>
+    <string name="lyrics_color_default">Predeterminado</string>
+    <string name="lyrics_color_reset">Restablecer color</string>
+    <string name="lyrics_size_label">Tamaño del texto</string>
+    <string name="lyrics_preview_text">Así se verá la letra</string>
+    <string name="lyrics_reset_all">Restablecer todo</string>
+    <string name="settings_folder_filter_label">Filtro por carpetas</string>
+    <string name="settings_folder_filter_description">Muestra un botón de carpetas en Canciones para filtrar por carpeta</string>
+    <string name="folder_filter_all">Todas las carpetas</string>
+    <string name="folder_filter_title">Carpetas</string>
+    <string name="folder_filter_close">Cerrar</string>
 </resources>

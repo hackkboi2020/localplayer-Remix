@@ -24,6 +24,8 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.cvc953.localplayer.ui.theme.LyricsStyleStore.load(com.cvc953.localplayer.preferences.AppPrefs(this))
+        com.cvc953.localplayer.ui.theme.LibraryViewStore.load(com.cvc953.localplayer.preferences.AppPrefs(this))
         enableEdgeToEdge()
 
         // Apply language preference by updating resources configuration

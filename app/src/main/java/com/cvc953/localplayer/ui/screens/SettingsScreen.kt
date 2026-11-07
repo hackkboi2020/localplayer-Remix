@@ -107,6 +107,8 @@ import com.cvc953.localplayer.viewmodel.PlaylistViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.compose.material3.RadioButton
+import androidx.compose.foundation.background
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -826,6 +828,13 @@ fun SettingsScreen(
             }
 
             item {
+                LyricsAppearanceSection(
+                    expandedSection = expandedSection,
+                    onToggle = { id -> expandedSection = if (expandedSection == id) null else id },
+                )
+            }
+
+            item {
                 ExpandableSettingsSection(
                     icon = Icons.Default.LibraryMusic,
                     title = stringResource(id = R.string.settings_section_audio_title),
@@ -1075,6 +1084,33 @@ fun SettingsScreen(
                     expandedSection = expandedSection,
                     onToggle = { id -> expandedSection = if (expandedSection == id) null else id },
                 ) {
+                    SettingsRow(
+                        icon = Icons.Default.Folder,
+                        title = stringResource(id = R.string.settings_folder_filter_label),
+                        description = stringResource(id = R.string.settings_folder_filter_description),
+                    ) {
+                        Switch(
+                            checked = com.cvc953.localplayer.ui.theme.LibraryViewStore.folderFilterEnabled,
+                            onCheckedChange = {
+                                com.cvc953.localplayer.ui.theme.LibraryViewStore.setFolderFilterEnabled(
+                                    com.cvc953.localplayer.preferences.AppPrefs(context),
+                                    it,
+                                )
+                            },
+                            colors =
+                                SwitchDefaults.colors(
+                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                    checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                                    uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                ),
+                        )
+                    }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 12.dp),
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                    )
+
                     SettingsRow(
                         icon = Icons.Default.Refresh,
                         title = stringResource(id = R.string.settings_auto_scan_label),
@@ -1513,5 +1549,158 @@ private fun ExpandableSettingsSection(
                 content()
             }
         }
+    }
+}
+
+@Suppress("ktlint:standard:function-naming")
+@Composable
+private fun LyricsAppearanceSection(
+    expandedSection: String?,
+    onToggle: (String) -> Unit,
+) {
+    val context = LocalContext.current
+    val prefs = remember { com.cvc953.localplayer.preferences.AppPrefs(context) }
+    var showColorPicker by remember { mutableStateOf(false) }
+    var fontError by remember { mutableStateOf(false) }
+
+    val fontPicker =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) {
+                val previous = com.cvc953.localplayer.ui.theme.LyricsStyleStore.customFontPath
+                val target = java.io.File(context.filesDir, "lyrics_font_${System.currentTimeMillis()}")
+                val ok =
+                    runCatching {
+                        context.contentResolver.openInputStream(uri)?.use { input ->
+                            target.outputStream().use { out -> input.copyTo(out) }
+                        }
+                        com.cvc953.localplayer.ui.theme.LyricsStyleStore.setCustomFont(prefs, target)
+                    }.getOrDefault(false)
+                fontError = !ok
+                if (ok) {
+                    previous?.let { java.io.File(it).delete() }
+                } else {
+                    target.delete()
+                }
+            }
+        }
+
+    ExpandableSettingsSection(
+        icon = Icons.Default.Palette,
+        title = stringResource(id = R.string.settings_section_lyrics_title),
+        subtitle = stringResource(id = R.string.settings_section_lyrics_subtitle),
+        sectionId = "lyrics",
+        expandedSection = expandedSection,
+        onToggle = onToggle,
+    ) {
+        val style = com.cvc953.localplayer.ui.theme.LyricsStyleStore
+
+        Text(
+            text = stringResource(id = R.string.lyrics_font_label),
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold,
+        )
+        val modes =
+            listOf(
+                "default" to R.string.lyrics_font_default,
+                "sans" to R.string.lyrics_font_sans,
+                "serif" to R.string.lyrics_font_serif,
+                "mono" to R.string.lyrics_font_mono,
+            )
+        modes.forEach { (mode, labelRes) ->
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable { style.setFontMode(prefs, mode) },
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(selected = style.fontMode == mode, onClick = { style.setFontMode(prefs, mode) })
+                Text(text = stringResource(id = labelRes), color = MaterialTheme.colorScheme.onSurface)
+            }
+        }
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { fontPicker.launch(arrayOf("*/*")) },
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            RadioButton(selected = style.fontMode == "custom", onClick = { fontPicker.launch(arrayOf("*/*")) })
+            Text(
+                text = stringResource(id = R.string.lyrics_font_custom),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        if (fontError) {
+            Text(
+                text = stringResource(id = R.string.lyrics_font_invalid),
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 12.sp,
+            )
+        }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 12.dp),
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+        )
+
+        SettingsRow(
+            icon = Icons.Default.Palette,
+            title = stringResource(id = R.string.lyrics_color_label),
+            description = style.colorHex ?: stringResource(id = R.string.lyrics_color_default),
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(style.activeColor ?: MaterialTheme.colorScheme.onSurface)
+                        .clickable { showColorPicker = true },
+            )
+        }
+        if (style.colorHex != null) {
+            TextButton(onClick = { style.setColor(prefs, null) }) {
+                Text(stringResource(id = R.string.lyrics_color_reset))
+            }
+        }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 12.dp),
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+        )
+
+        Text(
+            text = stringResource(id = R.string.lyrics_size_label),
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Slider(
+            value = style.sizeScale,
+            onValueChange = { style.setSizeScale(prefs, it) },
+            valueRange = 0.8f..1.4f,
+        )
+
+        Text(
+            text = stringResource(id = R.string.lyrics_preview_text),
+            color = style.activeColor ?: MaterialTheme.colorScheme.onSurface,
+            fontFamily = style.fontFamily,
+            fontWeight = FontWeight.Bold,
+            fontSize = (24f * style.sizeScale).sp,
+        )
+
+        TextButton(onClick = { style.resetAll(prefs) }) {
+            Text(stringResource(id = R.string.lyrics_reset_all))
+        }
+    }
+
+    if (showColorPicker) {
+        ColorPickerDialog(
+            initialHex = style.colorHex ?: "#FFFFFF",
+            onColorSelected = { hex ->
+                style.setColor(prefs, hex)
+                showColorPicker = false
+            },
+            onDismiss = { showColorPicker = false },
+        )
     }
 }

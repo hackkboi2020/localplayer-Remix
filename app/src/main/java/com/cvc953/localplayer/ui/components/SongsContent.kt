@@ -96,16 +96,23 @@ fun SongsContent(
     var showSearchBar by rememberSaveable { mutableStateOf(false) }
     var sortMode by rememberSaveable { mutableStateOf(SortMode.TITLE_ASC) }
     var sortMenuExpanded by remember { mutableStateOf(false) }
+    var selectedFolder by rememberSaveable { mutableStateOf<String?>(null) }
     // About visibility moved to ViewModel so shell UI can react
     var menuExpanded by remember { mutableStateOf(false) }
     val showAbout by playerViewModel.isAboutVisible.collectAsState()
+    val folderFilterOn = com.cvc953.localplayer.ui.theme.LibraryViewStore.folderFilterEnabled
+    val folderScoped =
+        remember(songs, selectedFolder, folderFilterOn) {
+            val folder = selectedFolder
+            if (!folderFilterOn || folder == null) songs else FolderIndex.songsIn(songs, folder)
+        }
     val filteredSongs =
-        remember(songs, searchQuery) {
+        remember(folderScoped, searchQuery) {
             val q = searchQuery.trim().lowercase()
             if (q.isEmpty()) {
-                songs
+                folderScoped
             } else {
-                songs.filter { song ->
+                folderScoped.filter { song ->
                     song.title.lowercase().contains(q) ||
                         song.artist.lowercase().contains(q)
                 }
@@ -383,6 +390,14 @@ fun SongsContent(
                             },
                         )
                     }
+                }
+
+                if (folderFilterOn) {
+                    FolderFilterBar(
+                        songs = songs,
+                        selectedFolder = selectedFolder,
+                        onFolderSelected = { selectedFolder = it },
+                    )
                 }
 
                 if (showSearchBar) {

@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cvc953.localplayer.model.TtmlAlignment
+import com.cvc953.localplayer.ui.theme.LyricsStyleStore
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -123,10 +124,16 @@ fun LyricLine(
             Text(
                 text = text.trimStart(),
                 color = color,
-                fontSize = fontSize.sp,
+                fontSize = (fontSize * LyricsStyleStore.sizeScale).sp,
+                fontFamily = LyricsStyleStore.fontFamily,
                 fontWeight = FontWeight.Bold,
                 textAlign = textAlign,
-                lineHeight = if (isSecondaryVoice) (fontSize + 8).sp else (fontSize + 10).sp,
+                lineHeight =
+                    if (isSecondaryVoice) {
+                        (fontSize * LyricsStyleStore.sizeScale + 8).sp
+                    } else {
+                        (fontSize * LyricsStyleStore.sizeScale + 10).sp
+                    },
                 maxLines = Int.MAX_VALUE,
                 softWrap = true,
                 overflow = TextOverflow.Visible,

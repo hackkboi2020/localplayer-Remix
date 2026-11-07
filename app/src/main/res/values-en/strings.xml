@@ -308,4 +308,24 @@
     <string name="notification_action_next">Next</string>
     <string name="notification_action_pause">Pause</string>
     <string name="notification_action_play">Play</string>
+    <string name="settings_section_lyrics_title">Lyrics appearance</string>
+    <string name="settings_section_lyrics_subtitle">Font, color and size of the lyrics</string>
+    <string name="lyrics_font_label">Font</string>
+    <string name="lyrics_font_default">Default</string>
+    <string name="lyrics_font_sans">Sans serif</string>
+    <string name="lyrics_font_serif">Serif</string>
+    <string name="lyrics_font_mono">Monospace</string>
+    <string name="lyrics_font_custom">Custom font…</string>
+    <string name="lyrics_font_invalid">That file isn\'t a usable font.</string>
+    <string name="lyrics_color_label">Lyrics color</string>
+    <string name="lyrics_color_default">Default</string>
+    <string name="lyrics_color_reset">Reset color</string>
+    <string name="lyrics_size_label">Text size</string>
+    <string name="lyrics_preview_text">This is how the lyrics will look</string>
+    <string name="lyrics_reset_all">Reset all</string>
+    <string name="settings_folder_filter_label">Folder filter</string>
+    <string name="settings_folder_filter_description">Show a folder button on the Songs tab to filter by folder</string>
+    <string name="folder_filter_all">All folders</string>
+    <string name="folder_filter_title">Folders</string>
+    <string name="folder_filter_close">Close</string>
 </resources>
