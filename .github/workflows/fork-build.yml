@@ -63,11 +63,21 @@ jobs:
           ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
           ANDROID_SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
           ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
-        run: ./gradlew assembleRelease --no-daemon -PappVersionName="${{ steps.version.outputs.name }}"
+        run: |
+          set -o pipefail
+          ./gradlew assembleRelease --no-daemon -PappVersionName="${{ steps.version.outputs.name }}" 2>&1 | tee build.log
 
       - name: Build debug APK
         if: steps.signing.outputs.signed != 'true'
-        run: ./gradlew assembleDebug --no-daemon -PappVersionName="${{ steps.version.outputs.name }}"
+        run: |
+          set -o pipefail
+          ./gradlew assembleDebug --no-daemon -PappVersionName="${{ steps.version.outputs.name }}" 2>&1 | tee build.log
+
+      # Prints compile errors as annotations so they show on the run summary page.
+      - name: Show build errors
+        if: failure()
+        run: |
+          grep -E "^e: |error:|What went wrong" -A1 build.log | head -30 | while IFS= read -r line; do echo "::error::${line}"; done || true
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

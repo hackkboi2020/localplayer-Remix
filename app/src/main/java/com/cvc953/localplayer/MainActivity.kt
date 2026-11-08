@@ -26,6 +26,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         com.cvc953.localplayer.ui.theme.LyricsStyleStore.load(com.cvc953.localplayer.preferences.AppPrefs(this))
         com.cvc953.localplayer.ui.theme.LibraryViewStore.load(com.cvc953.localplayer.preferences.AppPrefs(this))
+        com.cvc953.localplayer.ui.theme.PlayerStyleStore.load(com.cvc953.localplayer.preferences.AppPrefs(this))
         enableEdgeToEdge()
 
         // Apply language preference by updating resources configuration

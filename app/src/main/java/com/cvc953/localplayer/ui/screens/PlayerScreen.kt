@@ -125,6 +125,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.text.toInt
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import com.cvc953.localplayer.ui.theme.PlayerStyleStore
+import com.cvc953.localplayer.util.onAccentColor
+import com.cvc953.localplayer.util.toReadableAccent
 
 @Suppress("ktlint:standard:function-naming")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -303,6 +308,25 @@ fun PlayerScreen(
         }
     }
 
+    // Accent from the album artwork: every primary-colored control below (buttons, sliders,
+    // switches) takes the cover's color. Falls back to the normal theme accent.
+    val baseColorScheme = MaterialTheme.colorScheme
+    val artworkAccentOn = PlayerStyleStore.artworkAccent
+    val targetAccent =
+        if (artworkAccentOn && albumArt != null && dominantColor != Color.Black) {
+            dominantColor.toReadableAccent()
+        } else {
+            baseColorScheme.primary
+        }
+    val artworkAccent by animateColorAsState(
+        targetValue = targetAccent,
+        animationSpec = tween(durationMillis = 600),
+        label = "artwork_accent",
+    )
+
+    MaterialTheme(
+        colorScheme = baseColorScheme.copy(primary = artworkAccent, onPrimary = artworkAccent.onAccentColor()),
+    ) {
     LaunchedEffect(song) { lyricsViewModel.loadLyricsForSong(song) }
 
     // Determine background based on dynamic color setting
@@ -1373,6 +1397,7 @@ fun PlayerScreen(
                 }
             }
         }
+    }
     }
 }
 

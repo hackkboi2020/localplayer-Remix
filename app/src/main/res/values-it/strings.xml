@@ -329,4 +329,6 @@
     <string name="folder_filter_all">Tutte le cartelle</string>
     <string name="folder_filter_title">Cartelle</string>
     <string name="folder_filter_close">Chiudi</string>
+    <string name="settings_artwork_accent_label">Accento dalla copertina</string>
+    <string name="settings_artwork_accent_description">I pulsanti del player usano il colore della copertina</string>
 </resources>

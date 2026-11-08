@@ -330,4 +330,6 @@
     <string name="folder_filter_all">Todas las carpetas</string>
     <string name="folder_filter_title">Carpetas</string>
     <string name="folder_filter_close">Cerrar</string>
+    <string name="settings_artwork_accent_label">Acento según la carátula</string>
+    <string name="settings_artwork_accent_description">Los botones del reproductor usan el color de la carátula</string>
 </resources>

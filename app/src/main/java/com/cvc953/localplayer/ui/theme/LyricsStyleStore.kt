@@ -122,3 +122,21 @@ object LibraryViewStore {
         prefs.setFolderFilterEnabled(enabled)
     }
 }
+
+/** Whether the player's buttons take their accent from the album artwork (Settings > Appearance). */
+object PlayerStyleStore {
+    var artworkAccent: Boolean by mutableStateOf(true)
+        private set
+
+    fun load(prefs: AppPrefs) {
+        artworkAccent = prefs.isArtworkAccentEnabled()
+    }
+
+    fun setArtworkAccent(
+        prefs: AppPrefs,
+        enabled: Boolean,
+    ) {
+        artworkAccent = enabled
+        prefs.setArtworkAccentEnabled(enabled)
+    }
+}

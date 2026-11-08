@@ -566,6 +566,33 @@ fun SettingsScreen(
                                 ),
                         )
                     }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 12.dp),
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                    )
+
+                    SettingsRow(
+                        icon = Icons.Default.Palette,
+                        title = stringResource(id = R.string.settings_artwork_accent_label),
+                        description = stringResource(id = R.string.settings_artwork_accent_description),
+                    ) {
+                        Switch(
+                            checked = com.cvc953.localplayer.ui.theme.PlayerStyleStore.artworkAccent,
+                            onCheckedChange = {
+                                com.cvc953.localplayer.ui.theme.PlayerStyleStore.setArtworkAccent(
+                                    com.cvc953.localplayer.preferences.AppPrefs(context),
+                                    it,
+                                )
+                            },
+                            colors =
+                                SwitchDefaults.colors(
+                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                    checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                                    uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                ),
+                        )
+                    }
                 }
             }
 
@@ -1584,6 +1611,8 @@ private fun LyricsAppearanceSection(
             }
         }
 
+    val style = com.cvc953.localplayer.ui.theme.LyricsStyleStore
+
     ExpandableSettingsSection(
         icon = Icons.Default.Palette,
         title = stringResource(id = R.string.settings_section_lyrics_title),
@@ -1592,8 +1621,6 @@ private fun LyricsAppearanceSection(
         expandedSection = expandedSection,
         onToggle = onToggle,
     ) {
-        val style = com.cvc953.localplayer.ui.theme.LyricsStyleStore
-
         Text(
             text = stringResource(id = R.string.lyrics_font_label),
             color = MaterialTheme.colorScheme.onSurface,

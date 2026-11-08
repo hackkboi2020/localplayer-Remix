@@ -472,4 +472,11 @@ class AppPrefs(
     fun setFolderFilterEnabled(enabled: Boolean) {
         prefs.edit().putBoolean("folder_filter_enabled", enabled).apply()
     }
+
+    // Player accent taken from the album artwork (on by default)
+    fun isArtworkAccentEnabled(): Boolean = prefs.getBoolean("artwork_accent_enabled", true)
+
+    fun setArtworkAccentEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean("artwork_accent_enabled", enabled).apply()
+    }
 }

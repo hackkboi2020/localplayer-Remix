@@ -328,4 +328,6 @@
     <string name="folder_filter_all">All folders</string>
     <string name="folder_filter_title">Folders</string>
     <string name="folder_filter_close">Close</string>
+    <string name="settings_artwork_accent_label">Accent from artwork</string>
+    <string name="settings_artwork_accent_description">Player buttons match the album cover color</string>
 </resources>
