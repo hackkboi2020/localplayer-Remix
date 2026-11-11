@@ -130,6 +130,12 @@ import androidx.compose.animation.core.tween
 import com.cvc953.localplayer.ui.theme.PlayerStyleStore
 import com.cvc953.localplayer.util.onAccentColor
 import com.cvc953.localplayer.util.toReadableAccent
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import com.cvc953.localplayer.ui.theme.LyricsRefreshStore
+import com.cvc953.localplayer.util.getAccentColor
 
 @Suppress("ktlint:standard:function-naming")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -195,6 +201,7 @@ fun PlayerScreen(
 
     var albumArt by remember { mutableStateOf<Bitmap?>(null) }
     var dominantColor by remember { mutableStateOf(Color.Black) }
+    var accentSource by remember { mutableStateOf(Color.Black) }
     var showQueue by remember { mutableStateOf(false) }
     var showSleepTimerDialog by remember { mutableStateOf(false) }
     var showAddToPlaylistDialog by remember { mutableStateOf(false) }
@@ -283,8 +290,10 @@ fun PlayerScreen(
     LaunchedEffect(albumArt) {
         if (albumArt != null) {
             dominantColor = albumArt!!.getDominantColor(Color.Black) // .withLowTransparency(0.1f)
+            accentSource = albumArt!!.getAccentColor(Color.Black)
         } else {
             dominantColor = Color.Black // .withLowTransparency(0.1f)
+            accentSource = Color.Black
         }
     }
 
@@ -312,11 +321,12 @@ fun PlayerScreen(
     // switches) takes the cover's color. Falls back to the normal theme accent.
     val baseColorScheme = MaterialTheme.colorScheme
     val artworkAccentOn = PlayerStyleStore.artworkAccent
+    val customAccent = PlayerStyleStore.accentColor
     val targetAccent =
-        if (artworkAccentOn && albumArt != null && dominantColor != Color.Black) {
-            dominantColor.toReadableAccent()
-        } else {
-            baseColorScheme.primary
+        when {
+            artworkAccentOn && albumArt != null && accentSource != Color.Black -> accentSource.toReadableAccent()
+            !artworkAccentOn && customAccent != null -> customAccent
+            else -> baseColorScheme.primary
         }
     val artworkAccent by animateColorAsState(
         targetValue = targetAccent,
@@ -324,37 +334,60 @@ fun PlayerScreen(
         label = "artwork_accent",
     )
 
+    // The background color fades from song to song instead of snapping
+    val dominantAnimated by animateColorAsState(
+        targetValue = dominantColor,
+        animationSpec = tween(durationMillis = 1100),
+        label = "dominant_color",
+    )
+
     MaterialTheme(
         colorScheme = baseColorScheme.copy(primary = artworkAccent, onPrimary = artworkAccent.onAccentColor()),
     ) {
-    LaunchedEffect(song) { lyricsViewModel.loadLyricsForSong(song) }
+    LaunchedEffect(song, LyricsRefreshStore.tick) { lyricsViewModel.loadLyricsForSong(song) }
 
     // Determine background based on dynamic color setting
     val backgroundColor =
         if (dynamicColorEnabled) {
             Brush.verticalGradient(
                 listOf(
-                    dominantColor.darken(0.5f),
-                    dominantColor.darken(0.1f),
+                    dominantAnimated.darken(0.5f),
+                    dominantAnimated.darken(0.1f),
                 ),
             )
         } else {
-            Brush.verticalGradient(
-                listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.background),
-            )
+            PlayerStyleStore.backgroundBrush
+                ?: Brush.verticalGradient(
+                    listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.background),
+                )
         }
 
-    val forceLightForeground = dynamicColorEnabled && MaterialTheme.colorScheme.background.luminance() > 0.5f
-    val playerPrimaryColor = if (forceLightForeground) Color.White else MaterialTheme.colorScheme.onBackground
+    // A custom (dark) player background on a light theme needs light text, and the other way around
+    val themeIsLight = MaterialTheme.colorScheme.background.luminance() > 0.5f
+    val customBackgroundActive = !dynamicColorEnabled && PlayerStyleStore.backgroundBrush != null
+    val forceLightForeground =
+        (dynamicColorEnabled && themeIsLight) ||
+            (customBackgroundActive && !PlayerStyleStore.backgroundIsLight && themeIsLight)
+    val forceDarkForeground = customBackgroundActive && PlayerStyleStore.backgroundIsLight && !themeIsLight
+    val playerPrimaryColor =
+        when {
+            forceLightForeground -> Color.White
+            forceDarkForeground -> Color.Black
+            else -> MaterialTheme.colorScheme.onBackground
+        }
     val playerSecondaryColor =
         if (forceLightForeground) {
             Color.White.copy(alpha = 0.74f)
+        } else if (forceDarkForeground) {
+            Color.Black.copy(alpha = 0.7f)
         } else {
             LocalExtendedColors.current.textSecondary
         }
     val playerMetaColor =
         if (forceLightForeground) {
             Color.White.copy(alpha = 0.64f)
+        } else if (forceDarkForeground) {
+            Color.Black.copy(alpha = 0.55f)
         } else {
             LocalExtendedColors.current.texMeta
         }
@@ -373,7 +406,7 @@ fun PlayerScreen(
             primaryContentColor = playerPrimaryColor,
             secondaryContentColor = playerSecondaryColor,
             metaColor = playerMetaColor,
-            dominantColor = dominantColor,
+            dominantColor = dominantAnimated,
         )
     val toggleFavorite: () -> Unit = {
         val f = "Favoritos"
@@ -413,7 +446,13 @@ fun PlayerScreen(
                 .fillMaxSize()
                 .background(backgroundColor),
     ) {
-        if (showLyrics) {
+        // Cross-fade between the artwork view and the lyrics view instead of snapping
+        AnimatedContent(
+            targetState = showLyrics,
+            transitionSpec = { fadeIn(tween(380)) togetherWith fadeOut(tween(260)) },
+            label = "player_lyrics_switch",
+        ) { showingLyrics ->
+        if (showingLyrics) {
             Column(modifier = Modifier.fillMaxSize()) {
                 // ZONA DE LETRAS
                 Box(
@@ -425,7 +464,7 @@ fun PlayerScreen(
                         isInstrumental -> {
                             InstrumentalView(
                                 metadataLines = lyrics.filter { it.isMetadata },
-                                dominantColor = dominantColor,
+                                dominantColor = dominantAnimated,
                                 useDynamicBackground = dynamicColorEnabled,
                                 modifier = Modifier.fillMaxSize(),
                             )
@@ -438,7 +477,7 @@ fun PlayerScreen(
                                 lines = ttmlLyrics!!.lines,
                                 currentPosition = lyricsPosition,
                                 modifier = Modifier.fillMaxSize(),
-                                dominantColor = dominantColor,
+                                dominantColor = dominantAnimated,
                                 useDynamicBackground = dynamicColorEnabled,
                                 onLineClick = { targetMs -> playbackViewModel.seekTo(targetMs) },
                             )
@@ -450,7 +489,7 @@ fun PlayerScreen(
                                 lyrics = lyrics,
                                 currentPosition = lyricsPosition,
                                 modifier = Modifier.fillMaxSize(),
-                                dominantColor = dominantColor,
+                                dominantColor = dominantAnimated,
                                 useDynamicBackground = dynamicColorEnabled,
                                 onLineClick = { targetMs -> playbackViewModel.seekTo(targetMs) },
                             )
@@ -1396,6 +1435,7 @@ fun PlayerScreen(
                     }
                 }
             }
+        }
         }
     }
     }

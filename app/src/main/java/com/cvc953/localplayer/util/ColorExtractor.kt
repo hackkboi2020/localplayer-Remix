@@ -19,7 +19,8 @@ suspend fun Bitmap.getDominantColor(defaultColor: Color): Color =
             val dominantColor = palette.dominantSwatch
             val mutedColor = palette.mutedSwatch
 
-            val swatch = vibrantColor ?: dominantColor ?: mutedColor
+            // The swatch covering the most pixels (the cover's "average" look), not the most colorful one
+            val swatch = dominantColor ?: vibrantColor ?: mutedColor
             swatch?.let { Color(it.rgb) } ?: defaultColor
         } catch (e: Exception) {
             defaultColor
@@ -31,3 +32,21 @@ suspend fun Bitmap.getDominantColor(defaultColor: Color): Color =
  * @param alphaPercent Porcentaje de opacidad (0.0 a 1.0), por defecto 0.1 (10%)
  */
 fun Color.withAlpha(alphaPercent: Float = 0.1f): Color = this.copy(alpha = alphaPercent.coerceIn(0f, 1f))
+
+/**
+ * The cover's "pop" color (most vibrant swatch), used for accents. Falls back to the dominant color.
+ */
+suspend fun Bitmap.getAccentColor(defaultColor: Color): Color =
+    withContext(Dispatchers.Default) {
+        try {
+            val palette = Palette.from(this@getAccentColor).maximumColorCount(16).generate()
+            val swatch =
+                palette.vibrantSwatch
+                    ?: palette.lightVibrantSwatch
+                    ?: palette.dominantSwatch
+                    ?: palette.mutedSwatch
+            swatch?.let { Color(it.rgb) } ?: defaultColor
+        } catch (e: Exception) {
+            defaultColor
+        }
+    }

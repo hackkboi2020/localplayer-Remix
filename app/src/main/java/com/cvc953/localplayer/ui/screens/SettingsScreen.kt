@@ -109,6 +109,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.material3.RadioButton
 import androidx.compose.foundation.background
+import com.cvc953.localplayer.ui.components.ExcludedFoldersDialog
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -401,6 +402,10 @@ fun SettingsScreen(
             }
 
             item {
+                SettingsCategoryHeader(stringResource(id = R.string.settings_category_customization))
+            }
+
+            item {
                 ExpandableSettingsSection(
                     icon = Icons.Default.Tune,
                     title = stringResource(id = R.string.settings_section_appearance_title),
@@ -593,7 +598,219 @@ fun SettingsScreen(
                                 ),
                         )
                     }
+
+                    PlayerLookControls(dynamicColor = dynamicColor)
                 }
+            }
+
+            item {
+                LyricsAppearanceSection(
+                    expandedSection = expandedSection,
+                    onToggle = { id -> expandedSection = if (expandedSection == id) null else id },
+                )
+            }
+
+            item {
+                ExpandableSettingsSection(
+                    icon = Icons.Default.Check,
+                    title = stringResource(id = R.string.settings_section_navigation_title),
+                    subtitle = stringResource(id = R.string.settings_section_navigation_subtitle),
+                    sectionId = "navigation",
+                    expandedSection = expandedSection,
+                    onToggle = { id -> expandedSection = if (expandedSection == id) null else id },
+                ) {
+                    SettingsRow(
+                        icon = Icons.Default.MusicNote,
+                        title = stringResource(id = R.string.settings_default_tab_label),
+                        description = stringResource(id = R.string.settings_default_tab_description),
+                    ) {
+                        Box {
+                            OutlinedButton(onClick = { defaultTabExpanded = true }) {
+                                Text(
+                                    defaultTabOptions.find { it.first == defaultStartTab }?.second
+                                        ?: stringResource(id = R.string.songs_title),
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = defaultTabExpanded,
+                                onDismissRequest = { defaultTabExpanded = false },
+                                containerColor = MaterialTheme.colorScheme.surface,
+                            ) {
+                                defaultTabOptions.forEach { (key, label) ->
+                                    DropdownMenuItem(
+                                        text = { Text(label) },
+                                        onClick = {
+                                            viewModel.setDefaultStartTab(key)
+                                            defaultTabExpanded = false
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    listOf(
+                        "songs" to (stringResource(id = R.string.settings_songs_tab_label) to stringResource(id = R.string.settings_songs_tab_description) to (songsTabEnabled to { enabled: Boolean -> viewModel.setSongsTabEnabled(enabled) })),
+                        "albums" to (stringResource(id = R.string.settings_albums_tab_label) to stringResource(id = R.string.settings_albums_tab_description) to (albumsTabEnabled to { enabled: Boolean -> viewModel.setAlbumsTabEnabled(enabled) })),
+                        "artists" to (stringResource(id = R.string.settings_artists_tab_label) to stringResource(id = R.string.settings_artists_tab_description) to (artistsTabEnabled to { enabled: Boolean -> viewModel.setArtistsTabEnabled(enabled) })),
+                        "playlists" to (stringResource(id = R.string.settings_playlists_tab_label) to stringResource(id = R.string.settings_playlists_tab_description) to (playlistsTabEnabled to { enabled: Boolean -> viewModel.setPlaylistsTabEnabled(enabled) })),
+                        "genres" to (stringResource(id = R.string.settings_genres_tab_label) to stringResource(id = R.string.settings_genres_tab_description) to (genresTabEnabled to { enabled: Boolean -> viewModel.setGenresTabEnabled(enabled) })),
+                    ).forEach { (_, data) ->
+                        val (info, toggleData) = data
+                        val (title, description) = info
+                        val (isChecked, onToggle) = toggleData
+
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 12.dp),
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                        )
+
+                        SettingsRow(
+                            icon = Icons.Default.MusicNote,
+                            title = title,
+                            description = description,
+                        ) {
+                            Switch(
+                                checked = isChecked,
+                                onCheckedChange = onToggle,
+                                colors =
+                                    SwitchDefaults.colors(
+                                        checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                        checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                                        uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        uncheckedTrackColor =
+                                            MaterialTheme.colorScheme.onSurface.copy(
+                                                alpha = 0.16f,
+                                            ),
+                                    ),
+                            )
+                        }
+                    }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 16.dp),
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                    )
+
+                    SettingsRow(
+                        icon = Icons.Default.DragHandle,
+                        title = stringResource(id = R.string.settings_tab_order_title),
+                        description = stringResource(id = R.string.settings_tab_order_description),
+                    ) {}
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    val density = LocalDensity.current
+                    val dragThresholdPx = with(density) { 36.dp.toPx() }
+
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        tabOrder.forEachIndexed { index, tabId ->
+                            val title =
+                                when (tabId) {
+                                    "songs" -> stringResource(id = R.string.settings_songs_tab_label)
+                                    "albums" -> stringResource(id = R.string.settings_albums_tab_label)
+                                    "artists" -> stringResource(id = R.string.settings_artists_tab_label)
+                                    "playlists" -> stringResource(id = R.string.settings_playlists_tab_label)
+                                    "genres" -> stringResource(id = R.string.settings_genres_tab_label)
+                                    else -> tabId
+                                }
+
+                            var dragAccumulated by remember { mutableFloatStateOf(0f) }
+
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 3.dp),
+                                shape = RoundedCornerShape(10.dp),
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.weight(1f),
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.MusicNote,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(20.dp),
+                                        )
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Text(
+                                            text = title,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                        )
+                                    }
+
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        if (index > 0) {
+                                            IconButton(
+                                                onClick = { viewModel.moveTabUp(tabId) },
+                                                modifier = Modifier.size(32.dp),
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.KeyboardArrowUp,
+                                                    contentDescription = stringResource(id = R.string.action_move_up),
+                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                )
+                                            }
+                                        }
+                                        if (index < tabOrder.size - 1) {
+                                            IconButton(
+                                                onClick = { viewModel.moveTabDown(tabId) },
+                                                modifier = Modifier.size(32.dp),
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                                    contentDescription = stringResource(id = R.string.action_move_down),
+                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                )
+                                            }
+                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .padding(start = 4.dp)
+                                                .pointerInput(tabId) {
+                                                    detectVerticalDragGestures(
+                                                        onDragEnd = { dragAccumulated = 0f },
+                                                        onDragCancel = { dragAccumulated = 0f },
+                                                    ) { change, dragAmount ->
+                                                        change.consume()
+                                                        dragAccumulated += dragAmount
+                                                        if (dragAccumulated < -dragThresholdPx) {
+                                                            viewModel.moveTabUp(tabId)
+                                                            dragAccumulated = 0f
+                                                        } else if (dragAccumulated > dragThresholdPx) {
+                                                            viewModel.moveTabDown(tabId)
+                                                            dragAccumulated = 0f
+                                                        }
+                                                    }
+                                                }
+                                                .padding(6.dp),
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.DragHandle,
+                                                contentDescription = stringResource(id = R.string.settings_tab_order_title),
+                                                tint = MaterialTheme.colorScheme.primary,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            item {
+                SettingsCategoryHeader(stringResource(id = R.string.settings_category_playback))
             }
 
             item {
@@ -855,13 +1072,6 @@ fun SettingsScreen(
             }
 
             item {
-                LyricsAppearanceSection(
-                    expandedSection = expandedSection,
-                    onToggle = { id -> expandedSection = if (expandedSection == id) null else id },
-                )
-            }
-
-            item {
                 ExpandableSettingsSection(
                     icon = Icons.Default.LibraryMusic,
                     title = stringResource(id = R.string.settings_section_audio_title),
@@ -904,202 +1114,7 @@ fun SettingsScreen(
             }
 
             item {
-                ExpandableSettingsSection(
-                    icon = Icons.Default.Check,
-                    title = stringResource(id = R.string.settings_section_navigation_title),
-                    subtitle = stringResource(id = R.string.settings_section_navigation_subtitle),
-                    sectionId = "navigation",
-                    expandedSection = expandedSection,
-                    onToggle = { id -> expandedSection = if (expandedSection == id) null else id },
-                ) {
-                    SettingsRow(
-                        icon = Icons.Default.MusicNote,
-                        title = stringResource(id = R.string.settings_default_tab_label),
-                        description = stringResource(id = R.string.settings_default_tab_description),
-                    ) {
-                        Box {
-                            OutlinedButton(onClick = { defaultTabExpanded = true }) {
-                                Text(
-                                    defaultTabOptions.find { it.first == defaultStartTab }?.second
-                                        ?: stringResource(id = R.string.songs_title),
-                                )
-                            }
-                            DropdownMenu(
-                                expanded = defaultTabExpanded,
-                                onDismissRequest = { defaultTabExpanded = false },
-                                containerColor = MaterialTheme.colorScheme.surface,
-                            ) {
-                                defaultTabOptions.forEach { (key, label) ->
-                                    DropdownMenuItem(
-                                        text = { Text(label) },
-                                        onClick = {
-                                            viewModel.setDefaultStartTab(key)
-                                            defaultTabExpanded = false
-                                        },
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    listOf(
-                        "songs" to (stringResource(id = R.string.settings_songs_tab_label) to stringResource(id = R.string.settings_songs_tab_description) to (songsTabEnabled to { enabled: Boolean -> viewModel.setSongsTabEnabled(enabled) })),
-                        "albums" to (stringResource(id = R.string.settings_albums_tab_label) to stringResource(id = R.string.settings_albums_tab_description) to (albumsTabEnabled to { enabled: Boolean -> viewModel.setAlbumsTabEnabled(enabled) })),
-                        "artists" to (stringResource(id = R.string.settings_artists_tab_label) to stringResource(id = R.string.settings_artists_tab_description) to (artistsTabEnabled to { enabled: Boolean -> viewModel.setArtistsTabEnabled(enabled) })),
-                        "playlists" to (stringResource(id = R.string.settings_playlists_tab_label) to stringResource(id = R.string.settings_playlists_tab_description) to (playlistsTabEnabled to { enabled: Boolean -> viewModel.setPlaylistsTabEnabled(enabled) })),
-                        "genres" to (stringResource(id = R.string.settings_genres_tab_label) to stringResource(id = R.string.settings_genres_tab_description) to (genresTabEnabled to { enabled: Boolean -> viewModel.setGenresTabEnabled(enabled) })),
-                    ).forEach { (_, data) ->
-                        val (info, toggleData) = data
-                        val (title, description) = info
-                        val (isChecked, onToggle) = toggleData
-
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 12.dp),
-                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                        )
-
-                        SettingsRow(
-                            icon = Icons.Default.MusicNote,
-                            title = title,
-                            description = description,
-                        ) {
-                            Switch(
-                                checked = isChecked,
-                                onCheckedChange = onToggle,
-                                colors =
-                                    SwitchDefaults.colors(
-                                        checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                        checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-                                        uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        uncheckedTrackColor =
-                                            MaterialTheme.colorScheme.onSurface.copy(
-                                                alpha = 0.16f,
-                                            ),
-                                    ),
-                            )
-                        }
-                    }
-
-                    HorizontalDivider(
-                        modifier = Modifier.padding(vertical = 16.dp),
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                    )
-
-                    SettingsRow(
-                        icon = Icons.Default.DragHandle,
-                        title = stringResource(id = R.string.settings_tab_order_title),
-                        description = stringResource(id = R.string.settings_tab_order_description),
-                    ) {}
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    val density = LocalDensity.current
-                    val dragThresholdPx = with(density) { 36.dp.toPx() }
-
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        tabOrder.forEachIndexed { index, tabId ->
-                            val title =
-                                when (tabId) {
-                                    "songs" -> stringResource(id = R.string.settings_songs_tab_label)
-                                    "albums" -> stringResource(id = R.string.settings_albums_tab_label)
-                                    "artists" -> stringResource(id = R.string.settings_artists_tab_label)
-                                    "playlists" -> stringResource(id = R.string.settings_playlists_tab_label)
-                                    "genres" -> stringResource(id = R.string.settings_genres_tab_label)
-                                    else -> tabId
-                                }
-
-                            var dragAccumulated by remember { mutableFloatStateOf(0f) }
-
-                            Surface(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 3.dp),
-                                shape = RoundedCornerShape(10.dp),
-                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 14.dp, vertical = 10.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.weight(1f),
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.MusicNote,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.size(20.dp),
-                                        )
-                                        Spacer(modifier = Modifier.width(12.dp))
-                                        Text(
-                                            text = title,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                        )
-                                    }
-
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        if (index > 0) {
-                                            IconButton(
-                                                onClick = { viewModel.moveTabUp(tabId) },
-                                                modifier = Modifier.size(32.dp),
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.KeyboardArrowUp,
-                                                    contentDescription = stringResource(id = R.string.action_move_up),
-                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                )
-                                            }
-                                        }
-                                        if (index < tabOrder.size - 1) {
-                                            IconButton(
-                                                onClick = { viewModel.moveTabDown(tabId) },
-                                                modifier = Modifier.size(32.dp),
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.KeyboardArrowDown,
-                                                    contentDescription = stringResource(id = R.string.action_move_down),
-                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                )
-                                            }
-                                        }
-                                        Box(
-                                            modifier = Modifier
-                                                .padding(start = 4.dp)
-                                                .pointerInput(tabId) {
-                                                    detectVerticalDragGestures(
-                                                        onDragEnd = { dragAccumulated = 0f },
-                                                        onDragCancel = { dragAccumulated = 0f },
-                                                    ) { change, dragAmount ->
-                                                        change.consume()
-                                                        dragAccumulated += dragAmount
-                                                        if (dragAccumulated < -dragThresholdPx) {
-                                                            viewModel.moveTabUp(tabId)
-                                                            dragAccumulated = 0f
-                                                        } else if (dragAccumulated > dragThresholdPx) {
-                                                            viewModel.moveTabDown(tabId)
-                                                            dragAccumulated = 0f
-                                                        }
-                                                    }
-                                                }
-                                                .padding(6.dp),
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.DragHandle,
-                                                contentDescription = stringResource(id = R.string.settings_tab_order_title),
-                                                tint = MaterialTheme.colorScheme.primary,
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                SettingsCategoryHeader(stringResource(id = R.string.settings_category_library))
             }
 
             item {
@@ -1113,13 +1128,13 @@ fun SettingsScreen(
                 ) {
                     SettingsRow(
                         icon = Icons.Default.Folder,
-                        title = stringResource(id = R.string.settings_folder_filter_label),
-                        description = stringResource(id = R.string.settings_folder_filter_description),
+                        title = stringResource(id = R.string.settings_folder_view_label),
+                        description = stringResource(id = R.string.settings_folder_view_description),
                     ) {
                         Switch(
-                            checked = com.cvc953.localplayer.ui.theme.LibraryViewStore.folderFilterEnabled,
+                            checked = com.cvc953.localplayer.ui.theme.LibraryViewStore.folderViewEnabled,
                             onCheckedChange = {
-                                com.cvc953.localplayer.ui.theme.LibraryViewStore.setFolderFilterEnabled(
+                                com.cvc953.localplayer.ui.theme.LibraryViewStore.setFolderViewEnabled(
                                     com.cvc953.localplayer.preferences.AppPrefs(context),
                                     it,
                                 )
@@ -1130,6 +1145,45 @@ fun SettingsScreen(
                                     checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
                                     uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 ),
+                        )
+                    }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 12.dp),
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                    )
+
+                    var showExcludedDialog by remember { mutableStateOf(false) }
+                    val excludedFolders by com.cvc953.localplayer.ui.theme.LibraryViewStore.excludedFolders.collectAsState()
+                    SettingsRow(
+                        icon = Icons.Default.Folder,
+                        title = stringResource(id = R.string.settings_excluded_folders_label),
+                        description =
+                            if (excludedFolders.isEmpty()) {
+                                stringResource(id = R.string.settings_excluded_folders_none)
+                            } else {
+                                stringResource(id = R.string.settings_excluded_folders_count, excludedFolders.size)
+                            },
+                    ) {
+                        TextButton(onClick = { showExcludedDialog = true }) {
+                            Text(stringResource(id = R.string.settings_excluded_folders_action))
+                        }
+                    }
+                    if (showExcludedDialog) {
+                        val allSongs by com.cvc953.localplayer.model.SongRepository
+                            .getInstance(context)
+                            .songs
+                            .collectAsState()
+                        ExcludedFoldersDialog(
+                            songs = allSongs,
+                            excluded = excludedFolders,
+                            onChange = {
+                                com.cvc953.localplayer.ui.theme.LibraryViewStore.setExcludedFolders(
+                                    com.cvc953.localplayer.preferences.AppPrefs(context),
+                                    it,
+                                )
+                            },
+                            onDismiss = { showExcludedDialog = false },
                         )
                     }
 
@@ -1212,6 +1266,10 @@ fun SettingsScreen(
                         }
                     }
                 }
+            }
+
+            item {
+                SettingsCategoryHeader(stringResource(id = R.string.settings_category_data))
             }
 
             item {
@@ -1728,6 +1786,137 @@ private fun LyricsAppearanceSection(
                 showColorPicker = false
             },
             onDismiss = { showColorPicker = false },
+        )
+    }
+}
+
+@Suppress("ktlint:standard:function-naming")
+@Composable
+private fun SettingsCategoryHeader(title: String) {
+    Text(
+        text = title.uppercase(),
+        color = MaterialTheme.colorScheme.primary,
+        fontWeight = FontWeight.Bold,
+        fontSize = 12.sp,
+        letterSpacing = 1.2.sp,
+        modifier = Modifier.padding(start = 4.dp, top = 8.dp),
+    )
+}
+
+@Suppress("ktlint:standard:function-naming")
+@Composable
+private fun PlayerLookControls(dynamicColor: Boolean) {
+    val context = LocalContext.current
+    val prefs = remember { com.cvc953.localplayer.preferences.AppPrefs(context) }
+    val store = com.cvc953.localplayer.ui.theme.PlayerStyleStore
+    var picking by remember { mutableStateOf<String?>(null) }
+
+    if (!store.artworkAccent) {
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 12.dp),
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+        )
+        SettingsRow(
+            icon = Icons.Default.Palette,
+            title = stringResource(id = R.string.settings_player_accent_label),
+            description = store.accentHex ?: stringResource(id = R.string.settings_player_accent_default),
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(store.accentColor ?: MaterialTheme.colorScheme.primary)
+                        .clickable { picking = "accent" },
+            )
+        }
+        if (store.accentHex != null) {
+            TextButton(onClick = { store.setAccentHex(prefs, null) }) {
+                Text(stringResource(id = R.string.settings_player_accent_reset))
+            }
+        }
+    }
+
+    if (!dynamicColor) {
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 12.dp),
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+        )
+        Text(
+            text = stringResource(id = R.string.settings_player_background_label),
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold,
+        )
+        val modes =
+            listOf(
+                "default" to R.string.player_bg_default,
+                "solid" to R.string.player_bg_solid,
+                "gradient" to R.string.player_bg_gradient,
+            )
+        modes.forEach { (mode, labelRes) ->
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable { store.setBackgroundMode(prefs, mode) },
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(selected = store.backgroundMode == mode, onClick = { store.setBackgroundMode(prefs, mode) })
+                Text(text = stringResource(id = labelRes), color = MaterialTheme.colorScheme.onSurface)
+            }
+        }
+        if (store.backgroundMode != "default") {
+            SettingsRow(
+                icon = Icons.Default.Palette,
+                title = stringResource(id = R.string.player_bg_color_one),
+                description = store.backgroundHex1,
+            ) {
+                Box(
+                    modifier =
+                        Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(runCatching { Color(android.graphics.Color.parseColor(store.backgroundHex1)) }.getOrDefault(Color.Black))
+                            .clickable { picking = "bg1" },
+                )
+            }
+            if (store.backgroundMode == "gradient") {
+                SettingsRow(
+                    icon = Icons.Default.Palette,
+                    title = stringResource(id = R.string.player_bg_color_two),
+                    description = store.backgroundHex2,
+                ) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(runCatching { Color(android.graphics.Color.parseColor(store.backgroundHex2)) }.getOrDefault(Color.Black))
+                                .clickable { picking = "bg2" },
+                    )
+                }
+            }
+        }
+    }
+
+    picking?.let { which ->
+        val initial =
+            when (which) {
+                "bg1" -> store.backgroundHex1
+                "bg2" -> store.backgroundHex2
+                else -> store.accentHex ?: "#2196F3"
+            }
+        ColorPickerDialog(
+            initialHex = initial,
+            onColorSelected = { hex ->
+                when (which) {
+                    "bg1" -> store.setBackgroundHex1(prefs, hex)
+                    "bg2" -> store.setBackgroundHex2(prefs, hex)
+                    else -> store.setAccentHex(prefs, hex)
+                }
+                picking = null
+            },
+            onDismiss = { picking = null },
         )
     }
 }

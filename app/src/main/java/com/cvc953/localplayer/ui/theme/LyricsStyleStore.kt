@@ -8,6 +8,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import com.cvc953.localplayer.preferences.AppPrefs
 import java.io.File
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.luminance
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Lyrics appearance chosen in Settings. Every value defaults to "unchanged": with the
@@ -105,31 +109,90 @@ object LyricsStyleStore {
     }
 }
 
-/** Whether the Songs tab shows the folder filter (toggle in Settings → Library). */
+/** Library view options: the folder view on the Songs tab, and folders hidden from the library. */
 object LibraryViewStore {
-    var folderFilterEnabled: Boolean by mutableStateOf(false)
+    var folderViewEnabled: Boolean by mutableStateOf(false)
         private set
 
+    private val excluded = MutableStateFlow<Set<String>>(emptySet())
+    val excludedFolders: StateFlow<Set<String>> = excluded
+
     fun load(prefs: AppPrefs) {
-        folderFilterEnabled = prefs.isFolderFilterEnabled()
+        folderViewEnabled = prefs.isFolderViewEnabled()
+        excluded.value = prefs.getExcludedFolders()
     }
 
-    fun setFolderFilterEnabled(
+    fun setFolderViewEnabled(
         prefs: AppPrefs,
         enabled: Boolean,
     ) {
-        folderFilterEnabled = enabled
-        prefs.setFolderFilterEnabled(enabled)
+        folderViewEnabled = enabled
+        prefs.setFolderViewEnabled(enabled)
+    }
+
+    fun setExcludedFolders(
+        prefs: AppPrefs,
+        folders: Set<String>,
+    ) {
+        excluded.value = folders
+        prefs.setExcludedFolders(folders)
     }
 }
 
-/** Whether the player's buttons take their accent from the album artwork (Settings > Appearance). */
+/** Bumped by the refresh button so the player reloads the current song's lyrics from disk. */
+object LyricsRefreshStore {
+    var tick: Int by mutableStateOf(0)
+        private set
+
+    fun bump() {
+        tick += 1
+    }
+}
+
+/** Player look: accent from the artwork or a custom one, and the background used when dynamic color is off. */
 object PlayerStyleStore {
     var artworkAccent: Boolean by mutableStateOf(true)
         private set
+    var accentHex: String? by mutableStateOf(null) // custom accent, used when artworkAccent is off
+        private set
+    var backgroundMode: String by mutableStateOf("default") // default | solid | gradient
+        private set
+    var backgroundHex1: String by mutableStateOf("#101820")
+        private set
+    var backgroundHex2: String by mutableStateOf("#2A3A55")
+        private set
+
+    private fun parse(hex: String): Color? = runCatching { Color(android.graphics.Color.parseColor(hex)) }.getOrNull()
+
+    val accentColor: Color?
+        get() = accentHex?.let { parse(it) }
+
+    /** Null means "use the normal theme background". */
+    val backgroundBrush: Brush?
+        get() {
+            val first = parse(backgroundHex1)
+            val second = parse(backgroundHex2)
+            return when {
+                backgroundMode == "solid" && first != null -> Brush.verticalGradient(listOf(first, first))
+                backgroundMode == "gradient" && first != null && second != null ->
+                    Brush.verticalGradient(listOf(first, second))
+                else -> null
+            }
+        }
+
+    val backgroundIsLight: Boolean
+        get() {
+            val first = parse(backgroundHex1) ?: return false
+            val second = if (backgroundMode == "gradient") parse(backgroundHex2) ?: first else first
+            return (first.luminance() + second.luminance()) / 2f > 0.5f
+        }
 
     fun load(prefs: AppPrefs) {
         artworkAccent = prefs.isArtworkAccentEnabled()
+        accentHex = prefs.getPlayerAccentHex()
+        backgroundMode = prefs.getPlayerBackgroundMode()
+        backgroundHex1 = prefs.getPlayerBackgroundHex1()
+        backgroundHex2 = prefs.getPlayerBackgroundHex2()
     }
 
     fun setArtworkAccent(
@@ -138,5 +201,37 @@ object PlayerStyleStore {
     ) {
         artworkAccent = enabled
         prefs.setArtworkAccentEnabled(enabled)
+    }
+
+    fun setAccentHex(
+        prefs: AppPrefs,
+        hex: String?,
+    ) {
+        accentHex = hex
+        prefs.setPlayerAccentHex(hex)
+    }
+
+    fun setBackgroundMode(
+        prefs: AppPrefs,
+        mode: String,
+    ) {
+        backgroundMode = mode
+        prefs.setPlayerBackgroundMode(mode)
+    }
+
+    fun setBackgroundHex1(
+        prefs: AppPrefs,
+        hex: String,
+    ) {
+        backgroundHex1 = hex
+        prefs.setPlayerBackgroundHex1(hex)
+    }
+
+    fun setBackgroundHex2(
+        prefs: AppPrefs,
+        hex: String,
+    ) {
+        backgroundHex2 = hex
+        prefs.setPlayerBackgroundHex2(hex)
     }
 }

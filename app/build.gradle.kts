@@ -6,7 +6,7 @@ plugins {
 // La versión la define el tag del release mediante -PappVersionName. El fallback permite
 // compilar localmente sin propiedades; CI siempre lo sobreescribe.
 val appVersionName: String =
-    (findProperty("appVersionName") as String?)?.trim()?.takeIf { it.isNotEmpty() } ?: "1.1.3"
+    (findProperty("appVersionName") as String?)?.trim()?.takeIf { it.isNotEmpty() } ?: "1.2.8"
 
 // versionCode se deriva de la versión para que nunca se desincronice del tag:
 // 1.1.4 -> 10104, 2.0.0 -> 20000. Una pre-release comparte el código de su versión base,

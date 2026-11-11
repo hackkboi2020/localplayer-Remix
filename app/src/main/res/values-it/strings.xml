@@ -331,4 +331,26 @@
     <string name="folder_filter_close">Chiudi</string>
     <string name="settings_artwork_accent_label">Accento dalla copertina</string>
     <string name="settings_artwork_accent_description">I pulsanti del player usano il colore della copertina</string>
+    <string name="settings_folder_view_label">Vista cartelle</string>
+    <string name="settings_folder_view_description">Sfoglia i Brani come un file manager: sottocartelle e brani di ogni cartella</string>
+    <string name="settings_excluded_folders_label">Cartelle escluse</string>
+    <string name="settings_excluded_folders_none">Nessuna cartella nascosta</string>
+    <string name="settings_excluded_folders_count">%1$d cartelle nascoste</string>
+    <string name="settings_excluded_folders_action">Scegli</string>
+    <string name="settings_excluded_folders_title">Nascondi cartelle</string>
+    <string name="settings_excluded_folders_empty">Ancora nessun brano nella libreria.</string>
+    <string name="settings_player_accent_label">Colore accento del player</string>
+    <string name="settings_player_accent_default">Segue il tema</string>
+    <string name="settings_player_accent_reset">Ripristina accento</string>
+    <string name="settings_player_background_label">Sfondo del player</string>
+    <string name="player_bg_default">Predefinito</string>
+    <string name="player_bg_solid">Colore pieno</string>
+    <string name="player_bg_gradient">Sfumatura</string>
+    <string name="player_bg_color_one">Colore</string>
+    <string name="player_bg_color_two">Secondo colore</string>
+    <string name="songs_refresh_action">Aggiorna libreria e testi</string>
+    <string name="settings_category_customization">Personalizzazione</string>
+    <string name="settings_category_playback">Riproduzione</string>
+    <string name="settings_category_library">Libreria</string>
+    <string name="settings_category_data">Dati</string>
 </resources>

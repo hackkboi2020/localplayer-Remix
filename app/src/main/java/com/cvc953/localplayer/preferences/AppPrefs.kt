@@ -479,4 +479,45 @@ class AppPrefs(
     fun setArtworkAccentEnabled(enabled: Boolean) {
         prefs.edit().putBoolean("artwork_accent_enabled", enabled).apply()
     }
+
+    // Folder view on the Songs tab, and folders hidden from the library
+    fun isFolderViewEnabled(): Boolean = prefs.getBoolean("folder_view_enabled", false)
+
+    fun setFolderViewEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean("folder_view_enabled", enabled).apply()
+    }
+
+    fun getExcludedFolders(): Set<String> = prefs.getStringSet("excluded_folders", emptySet())?.toSet() ?: emptySet()
+
+    fun setExcludedFolders(folders: Set<String>) {
+        prefs.edit().putStringSet("excluded_folders", HashSet(folders)).apply()
+    }
+
+    // Player look
+    fun getPlayerAccentHex(): String? = prefs.getString("player_accent_hex", null)
+
+    fun setPlayerAccentHex(hex: String?) {
+        prefs.edit().apply {
+            if (hex == null) remove("player_accent_hex") else putString("player_accent_hex", hex)
+            apply()
+        }
+    }
+
+    fun getPlayerBackgroundMode(): String = prefs.getString("player_bg_mode", "default") ?: "default"
+
+    fun setPlayerBackgroundMode(mode: String) {
+        prefs.edit().putString("player_bg_mode", mode).apply()
+    }
+
+    fun getPlayerBackgroundHex1(): String = prefs.getString("player_bg_hex1", "#101820") ?: "#101820"
+
+    fun setPlayerBackgroundHex1(hex: String) {
+        prefs.edit().putString("player_bg_hex1", hex).apply()
+    }
+
+    fun getPlayerBackgroundHex2(): String = prefs.getString("player_bg_hex2", "#2A3A55") ?: "#2A3A55"
+
+    fun setPlayerBackgroundHex2(hex: String) {
+        prefs.edit().putString("player_bg_hex2", hex).apply()
+    }
 }

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.cvc953.localplayer.ui.theme.LibraryViewStore
 
 class SongViewModel(
     application: Application,
@@ -30,7 +31,16 @@ class SongViewModel(
     val error: StateFlow<String?> = _error
 
     val songs: StateFlow<List<Song>> =
-        combine(repository.songs, _searchQuery) { library, query ->
+        combine(repository.songs, _searchQuery, LibraryViewStore.excludedFolders) { allLibrary, query, excluded ->
+            // Songs inside an excluded folder (or its subfolders) never show up in the library
+            val library =
+                if (excluded.isEmpty()) {
+                    allLibrary
+                } else {
+                    allLibrary.filterNot { song ->
+                        excluded.any { folder -> song.filePath?.startsWith("$folder/") == true }
+                    }
+                }
             if (query.isBlank()) {
                 library
             } else {

@@ -79,6 +79,7 @@ import com.cvc953.localplayer.viewmodel.PlayerViewModel
 import com.cvc953.localplayer.viewmodel.PlaylistViewModel
 import com.cvc953.localplayer.viewmodel.SongViewModel
 import kotlinx.coroutines.launch
+import androidx.activity.compose.BackHandler
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -96,16 +97,28 @@ fun SongsContent(
     var showSearchBar by rememberSaveable { mutableStateOf(false) }
     var sortMode by rememberSaveable { mutableStateOf(SortMode.TITLE_ASC) }
     var sortMenuExpanded by remember { mutableStateOf(false) }
-    var selectedFolder by rememberSaveable { mutableStateOf<String?>(null) }
+    var currentFolder by rememberSaveable { mutableStateOf<String?>(null) }
     // About visibility moved to ViewModel so shell UI can react
     var menuExpanded by remember { mutableStateOf(false) }
     val showAbout by playerViewModel.isAboutVisible.collectAsState()
-    val folderFilterOn = com.cvc953.localplayer.ui.theme.LibraryViewStore.folderFilterEnabled
-    val folderScoped =
-        remember(songs, selectedFolder, folderFilterOn) {
-            val folder = selectedFolder
-            if (!folderFilterOn || folder == null) songs else FolderIndex.songsIn(songs, folder)
+    // Folder view: browse the library like a file manager (subfolders + the songs directly in a folder).
+    val folderViewOn = com.cvc953.localplayer.ui.theme.LibraryViewStore.folderViewEnabled
+    val rootDir = remember(songs) { FolderIndex.rootOf(songs) }
+    val activeDir = currentFolder ?: rootDir
+    val inFolderView = folderViewOn && searchQuery.isBlank() && rootDir.isNotEmpty()
+    val childFolders =
+        remember(songs, activeDir, inFolderView) {
+            if (inFolderView) FolderIndex.children(songs, activeDir) else emptyList()
         }
+    val folderScoped =
+        remember(songs, activeDir, inFolderView) {
+            if (inFolderView) FolderIndex.songsDirectlyIn(songs, activeDir) else songs
+        }
+    val goUpFolder: () -> Unit = {
+        val parent = currentFolder?.substringBeforeLast('/', "") ?: ""
+        currentFolder = if (parent.length > rootDir.length) parent else null
+    }
+    BackHandler(enabled = inFolderView && currentFolder != null) { goUpFolder() }
     val filteredSongs =
         remember(folderScoped, searchQuery) {
             val q = searchQuery.trim().lowercase()
@@ -274,6 +287,19 @@ fun SongsContent(
 
                     IconButton(
                         onClick = {
+                            songViewModel.manualRefreshLibrary()
+                            com.cvc953.localplayer.ui.theme.LyricsRefreshStore.bump()
+                        },
+                    ) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = stringResource(R.string.songs_refresh_action),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+
+                    IconButton(
+                        onClick = {
                             showSearchBar = !showSearchBar
                             if (!showSearchBar) searchQuery = ""
                         },
@@ -392,14 +418,6 @@ fun SongsContent(
                     }
                 }
 
-                if (folderFilterOn) {
-                    FolderFilterBar(
-                        songs = songs,
-                        selectedFolder = selectedFolder,
-                        onFolderSelected = { selectedFolder = it },
-                    )
-                }
-
                 if (showSearchBar) {
                     NativeSearchBar(
                         query = searchQuery,
@@ -479,6 +497,15 @@ fun SongsContent(
                                         )
                                     }
                                 }
+                            }
+                        }
+
+                        if (inFolderView) {
+                            if (currentFolder != null) {
+                                item { FolderUpRow(onClick = goUpFolder) }
+                            }
+                            items(childFolders) { node ->
+                                FolderRowItem(node = node, onClick = { currentFolder = node.path })
                             }
                         }
 
@@ -599,7 +626,8 @@ fun SongsContent(
                             },
                             onScrollToIndex = { index, _ ->
                                 scope.launch {
-                                    listState.scrollToItem(index)
+                                    val folderRows = if (inFolderView) childFolders.size + (if (currentFolder != null) 1 else 0) else 0
+                                    listState.scrollToItem(index + folderRows)
                                 }
                             },
                             viewAsGrid = false,

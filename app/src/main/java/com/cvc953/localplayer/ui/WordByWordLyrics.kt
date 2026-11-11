@@ -34,6 +34,12 @@ import androidx.compose.ui.unit.sp
 import com.cvc953.localplayer.model.TtmlAlignment
 import com.cvc953.localplayer.model.TtmlSyllable
 import com.cvc953.localplayer.ui.theme.LyricsStyleStore
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.runtime.remember
 
 @Suppress("ktlint:standard:function-naming")
 /*
@@ -175,8 +181,8 @@ fun WordByWordLine(
     maxWidthFraction: Float = 1f, // 1 = 100%, 0.666f = 2/3
 ) {
     // Separar sílabas principales de las de fondo (entre paréntesis)
-    val mainSyllables = syllables.filter { !it.isBackground }
-    val backgroundSyllables = syllables.filter { it.isBackground }
+    val mainSyllables = remember(syllables) { syllables.filter { !it.isBackground } }
+    val backgroundSyllables = remember(syllables) { syllables.filter { it.isBackground } }
 
     // Determinar alineación horizontal para FlowRow
     val flowHorizontalArrangement =
@@ -276,23 +282,33 @@ fun WordByWordLine(
             }
             flushWord()
 
-            // Línea de fondo (más pequeña, debajo) - solo visible cuando la línea está activa
-            if (backgroundSyllables.isNotEmpty() && isActive) {
-                Spacer(modifier = Modifier.padding(top = 2.dp))
-                FlowRow(
-                    horizontalArrangement = flowHorizontalArrangement,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth(maxWidthFraction),
-                ) {
-                    backgroundSyllables.forEach { syllable ->
-                        BackgroundSyllableLyric(
-                            syllable = syllable,
-                            currentPosition = currentPosition,
-                            isLineActive = isActive,
-                            baseColor = baseColor,
-                            activeColor = activeColor.copy(alpha = 0.6f),
-                        )
-                    }
+        }
+        // Background vocals: their own row UNDER the main text (never inside it), which slides out
+        // and fades in when their first word arrives, and tucks away again when the line ends.
+        val backgroundStart =
+            remember(backgroundSyllables) { backgroundSyllables.minOfOrNull { it.timeMs } ?: Long.MAX_VALUE }
+        AnimatedVisibility(
+            visible = isActive && backgroundSyllables.isNotEmpty() && currentPosition >= backgroundStart - 250L,
+            enter =
+                fadeIn(animationSpec = tween(350)) +
+                    expandVertically(animationSpec = tween(350), expandFrom = Alignment.Top),
+            exit =
+                fadeOut(animationSpec = tween(250)) +
+                    shrinkVertically(animationSpec = tween(250), shrinkTowards = Alignment.Top),
+        ) {
+            FlowRow(
+                horizontalArrangement = flowHorizontalArrangement,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(maxWidthFraction).padding(top = 2.dp),
+            ) {
+                backgroundSyllables.forEach { syllable ->
+                    BackgroundSyllableLyric(
+                        syllable = syllable,
+                        currentPosition = currentPosition,
+                        isLineActive = isActive,
+                        baseColor = baseColor,
+                        activeColor = activeColor.copy(alpha = 0.6f),
+                    )
                 }
             }
         }

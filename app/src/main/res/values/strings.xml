@@ -332,4 +332,26 @@
     <string name="folder_filter_close">Cerrar</string>
     <string name="settings_artwork_accent_label">Acento según la carátula</string>
     <string name="settings_artwork_accent_description">Los botones del reproductor usan el color de la carátula</string>
+    <string name="settings_folder_view_label">Vista de carpetas</string>
+    <string name="settings_folder_view_description">Navega Canciones como un explorador: subcarpetas y las canciones de cada carpeta</string>
+    <string name="settings_excluded_folders_label">Carpetas excluidas</string>
+    <string name="settings_excluded_folders_none">Ninguna carpeta oculta</string>
+    <string name="settings_excluded_folders_count">%1$d carpetas ocultas</string>
+    <string name="settings_excluded_folders_action">Elegir</string>
+    <string name="settings_excluded_folders_title">Ocultar carpetas</string>
+    <string name="settings_excluded_folders_empty">Aún no hay canciones en la biblioteca.</string>
+    <string name="settings_player_accent_label">Color de acento del reproductor</string>
+    <string name="settings_player_accent_default">Sigue el tema</string>
+    <string name="settings_player_accent_reset">Restablecer acento</string>
+    <string name="settings_player_background_label">Fondo del reproductor</string>
+    <string name="player_bg_default">Predeterminado</string>
+    <string name="player_bg_solid">Color sólido</string>
+    <string name="player_bg_gradient">Degradado</string>
+    <string name="player_bg_color_one">Color</string>
+    <string name="player_bg_color_two">Segundo color</string>
+    <string name="songs_refresh_action">Actualizar biblioteca y letras</string>
+    <string name="settings_category_customization">Personalización</string>
+    <string name="settings_category_playback">Reproducción</string>
+    <string name="settings_category_library">Biblioteca</string>
+    <string name="settings_category_data">Datos</string>
 </resources>

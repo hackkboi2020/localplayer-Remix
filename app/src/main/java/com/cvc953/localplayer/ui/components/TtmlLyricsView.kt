@@ -191,7 +191,9 @@ fun TtmlLyricsView(
                     if (line.syllabus.isNotEmpty()) {
                         WordByWordLine(
                             syllables = line.syllabus,
-                            currentPosition = currentPosition,
+                            // Only the playing line needs the live position. Inactive lines get a constant,
+                            // so Compose skips them instead of recomposing every visible line on every tick.
+                            currentPosition = if (index == currentIndex) currentPosition else 0L,
                             isActive = index == currentIndex,
                             baseColor = inactiveLyricColor,
                             activeColor = activeLyricColor,

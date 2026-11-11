@@ -330,4 +330,26 @@
     <string name="folder_filter_close">Close</string>
     <string name="settings_artwork_accent_label">Accent from artwork</string>
     <string name="settings_artwork_accent_description">Player buttons match the album cover color</string>
+    <string name="settings_folder_view_label">Folder view</string>
+    <string name="settings_folder_view_description">Browse Songs like a file manager: subfolders and the songs in each folder</string>
+    <string name="settings_excluded_folders_label">Excluded folders</string>
+    <string name="settings_excluded_folders_none">No folders hidden</string>
+    <string name="settings_excluded_folders_count">%1$d folders hidden</string>
+    <string name="settings_excluded_folders_action">Choose</string>
+    <string name="settings_excluded_folders_title">Hide folders</string>
+    <string name="settings_excluded_folders_empty">No songs in the library yet.</string>
+    <string name="settings_player_accent_label">Player accent color</string>
+    <string name="settings_player_accent_default">Follows the theme</string>
+    <string name="settings_player_accent_reset">Reset accent</string>
+    <string name="settings_player_background_label">Player background</string>
+    <string name="player_bg_default">Default</string>
+    <string name="player_bg_solid">Solid color</string>
+    <string name="player_bg_gradient">Gradient</string>
+    <string name="player_bg_color_one">Color</string>
+    <string name="player_bg_color_two">Second color</string>
+    <string name="songs_refresh_action">Refresh library and lyrics</string>
+    <string name="settings_category_customization">Customization</string>
+    <string name="settings_category_playback">Playback</string>
+    <string name="settings_category_library">Library</string>
+    <string name="settings_category_data">Data</string>
 </resources>
