@@ -28,6 +28,10 @@ object LyricsStyleStore {
     var sizeScale: Float by mutableStateOf(1f)
         private set
 
+    /** Shifts lyric timing: positive makes lyrics appear earlier, negative later. Fixes out-of-sync files. */
+    var timingOffsetMs: Int by mutableStateOf(0)
+        private set
+
     /** Null means "keep the original font". */
     val fontFamily: FontFamily?
         get() =
@@ -49,6 +53,7 @@ object LyricsStyleStore {
         customFontPath = prefs.getLyricsFontPath()
         colorHex = prefs.getLyricsColorHex()
         sizeScale = prefs.getLyricsSizeScale()
+        timingOffsetMs = prefs.getLyricsTimingOffsetMs()
         rebuildCustomFamily()
     }
 
@@ -72,18 +77,35 @@ object LyricsStyleStore {
         prefs.setLyricsFontMode(mode)
     }
 
-    /** Returns false (and changes nothing) when the file can't be loaded as a font. */
+    /** Returns null when the font was applied, otherwise a short reason it can't be used (nothing changes). */
     fun setCustomFont(
         prefs: AppPrefs,
         file: File,
-    ): Boolean {
-        val usable = runCatching { Typeface.createFromFile(file) != null }.getOrDefault(false)
-        if (!usable) return false
+    ): String? {
+        val size = file.length()
+        if (size < 64L) return "the copied file is empty ($size bytes)"
+
+        // TTF/OTF/TTC files start with a known tag; anything else (zip, woff, html...) isn't loadable
+        val header = ByteArray(4)
+        file.inputStream().use { it.read(header) }
+        val tag = String(header, Charsets.ISO_8859_1)
+        val isFont = tag == "OTTO" || tag == "true" || tag == "ttcf" || header.contentEquals(byteArrayOf(0, 1, 0, 0))
+        if (!isFont) return "it isn't a TTF/OTF font file"
+
+        val failure =
+            try {
+                Typeface.createFromFile(file)
+                null
+            } catch (e: Throwable) {
+                e.message ?: e.javaClass.simpleName
+            }
+        if (failure != null) return "Android couldn't load it ($failure)"
+
         customFontPath = file.absolutePath
         prefs.setLyricsFontPath(file.absolutePath)
         rebuildCustomFamily()
         setFontMode(prefs, "custom")
-        return true
+        return null
     }
 
     fun setColor(
@@ -100,6 +122,14 @@ object LyricsStyleStore {
     ) {
         sizeScale = scale
         prefs.setLyricsSizeScale(scale)
+    }
+
+    fun setTimingOffset(
+        prefs: AppPrefs,
+        ms: Int,
+    ) {
+        timingOffsetMs = ms.coerceIn(-1500, 1500)
+        prefs.setLyricsTimingOffsetMs(timingOffsetMs)
     }
 
     fun resetAll(prefs: AppPrefs) {

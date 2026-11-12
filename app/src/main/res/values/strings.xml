@@ -354,4 +354,7 @@
     <string name="settings_category_playback">Reproducción</string>
     <string name="settings_category_library">Biblioteca</string>
     <string name="settings_category_data">Datos</string>
+    <string name="lyrics_offset_label">Sincronización de la letra</string>
+    <string name="lyrics_offset_hint">Positivo = la letra aparece antes. Negativo = después.</string>
+    <string name="lyrics_offset_reset">Restablecer sincronización</string>
 </resources>

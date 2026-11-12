@@ -353,4 +353,7 @@
     <string name="settings_category_playback">Riproduzione</string>
     <string name="settings_category_library">Libreria</string>
     <string name="settings_category_data">Dati</string>
+    <string name="lyrics_offset_label">Sincronizzazione dei testi</string>
+    <string name="lyrics_offset_hint">Positivo = i testi appaiono prima. Negativo = dopo.</string>
+    <string name="lyrics_offset_reset">Ripristina sincronizzazione</string>
 </resources>

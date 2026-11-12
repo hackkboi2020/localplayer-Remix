@@ -1653,15 +1653,17 @@ private fun LyricsAppearanceSection(
             if (uri != null) {
                 val previous = com.cvc953.localplayer.ui.theme.LyricsStyleStore.customFontPath
                 val target = java.io.File(context.filesDir, "lyrics_font_${System.currentTimeMillis()}")
-                val ok =
+                // null = applied, otherwise the reason the file can't be used
+                val failure: String? =
                     runCatching {
-                        context.contentResolver.openInputStream(uri)?.use { input ->
-                            target.outputStream().use { out -> input.copyTo(out) }
-                        }
+                        val input =
+                            context.contentResolver.openInputStream(uri)
+                                ?: throw java.io.IOException("the file couldn't be opened")
+                        input.use { stream -> target.outputStream().use { out -> stream.copyTo(out) } }
                         com.cvc953.localplayer.ui.theme.LyricsStyleStore.setCustomFont(prefs, target)
-                    }.getOrDefault(false)
-                fontError = !ok
-                if (ok) {
+                    }.getOrElse { e -> "${e.javaClass.simpleName}: ${e.message}" }
+                fontError = failure
+                if (failure == null) {
                     previous?.let { java.io.File(it).delete() }
                 } else {
                     target.delete()
@@ -1716,9 +1718,9 @@ private fun LyricsAppearanceSection(
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
-        if (fontError) {
+        if (fontError != null) {
             Text(
-                text = stringResource(id = R.string.lyrics_font_invalid),
+                text = stringResource(id = R.string.lyrics_font_invalid) + " " + fontError,
                 color = MaterialTheme.colorScheme.error,
                 fontSize = 12.sp,
             )
@@ -1764,6 +1766,32 @@ private fun LyricsAppearanceSection(
             onValueChange = { style.setSizeScale(prefs, it) },
             valueRange = 0.8f..1.4f,
         )
+
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 12.dp),
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+        )
+
+        Text(
+            text =
+                stringResource(id = R.string.lyrics_offset_label) + ": " +
+                    (if (style.timingOffsetMs > 0) "+" else "") + style.timingOffsetMs + " ms",
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Text(
+            text = stringResource(id = R.string.lyrics_offset_hint),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = 12.sp,
+        )
+        Slider(
+            value = style.timingOffsetMs.toFloat(),
+            onValueChange = { style.setTimingOffset(prefs, Math.round(it / 50f) * 50) },
+            valueRange = -1500f..1500f,
+        )
+        TextButton(onClick = { style.setTimingOffset(prefs, 0) }) {
+            Text(stringResource(id = R.string.lyrics_offset_reset))
+        }
 
         Text(
             text = stringResource(id = R.string.lyrics_preview_text),

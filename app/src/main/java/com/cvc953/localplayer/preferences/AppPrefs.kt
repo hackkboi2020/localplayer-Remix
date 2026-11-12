@@ -520,4 +520,11 @@ class AppPrefs(
     fun setPlayerBackgroundHex2(hex: String) {
         prefs.edit().putString("player_bg_hex2", hex).apply()
     }
+
+    // Lyrics timing offset in milliseconds (positive = lyrics appear earlier)
+    fun getLyricsTimingOffsetMs(): Int = prefs.getInt("lyrics_timing_offset_ms", 0)
+
+    fun setLyricsTimingOffsetMs(ms: Int) {
+        prefs.edit().putInt("lyrics_timing_offset_ms", ms).apply()
+    }
 }

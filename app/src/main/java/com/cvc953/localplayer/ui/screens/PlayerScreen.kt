@@ -136,6 +136,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import com.cvc953.localplayer.ui.theme.LyricsRefreshStore
 import com.cvc953.localplayer.util.getAccentColor
+import com.cvc953.localplayer.ui.theme.LyricsStyleStore
 
 @Suppress("ktlint:standard:function-naming")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -475,11 +476,13 @@ fun PlayerScreen(
                             // Mostrar letras palabra por palabra
                             TtmlLyricsView(
                                 lines = ttmlLyrics!!.lines,
-                                currentPosition = lyricsPosition,
+                                currentPosition = (lyricsPosition + LyricsStyleStore.timingOffsetMs).coerceAtLeast(0L),
                                 modifier = Modifier.fillMaxSize(),
                                 dominantColor = dominantAnimated,
                                 useDynamicBackground = dynamicColorEnabled,
-                                onLineClick = { targetMs -> playbackViewModel.seekTo(targetMs) },
+                                onLineClick = { targetMs ->
+                                    playbackViewModel.seekTo((targetMs - LyricsStyleStore.timingOffsetMs).coerceAtLeast(0L))
+                                },
                             )
                         }
 
@@ -487,11 +490,13 @@ fun PlayerScreen(
                             // Fallback a letras línea por línea
                             LyricsView(
                                 lyrics = lyrics,
-                                currentPosition = lyricsPosition,
+                                currentPosition = (lyricsPosition + LyricsStyleStore.timingOffsetMs).coerceAtLeast(0L),
                                 modifier = Modifier.fillMaxSize(),
                                 dominantColor = dominantAnimated,
                                 useDynamicBackground = dynamicColorEnabled,
-                                onLineClick = { targetMs -> playbackViewModel.seekTo(targetMs) },
+                                onLineClick = { targetMs ->
+                                    playbackViewModel.seekTo((targetMs - LyricsStyleStore.timingOffsetMs).coerceAtLeast(0L))
+                                },
                             )
                         }
 
