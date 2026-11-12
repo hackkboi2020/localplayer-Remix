@@ -110,6 +110,7 @@ import kotlinx.coroutines.withContext
 import androidx.compose.material3.RadioButton
 import androidx.compose.foundation.background
 import com.cvc953.localplayer.ui.components.ExcludedFoldersDialog
+import kotlin.math.roundToInt
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -1646,7 +1647,7 @@ private fun LyricsAppearanceSection(
     val context = LocalContext.current
     val prefs = remember { com.cvc953.localplayer.preferences.AppPrefs(context) }
     var showColorPicker by remember { mutableStateOf(false) }
-    var fontError by remember { mutableStateOf(false) }
+    var fontError by remember { mutableStateOf<String?>(null) }
 
     val fontPicker =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -1786,7 +1787,7 @@ private fun LyricsAppearanceSection(
         )
         Slider(
             value = style.timingOffsetMs.toFloat(),
-            onValueChange = { style.setTimingOffset(prefs, Math.round(it / 50f) * 50) },
+            onValueChange = { value: Float -> style.setTimingOffset(prefs, (value / 50f).roundToInt() * 50) },
             valueRange = -1500f..1500f,
         )
         TextButton(onClick = { style.setTimingOffset(prefs, 0) }) {
